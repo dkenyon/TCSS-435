@@ -1,2 +1,2 @@
-# TCSS-435-HW1
-TicTacToe agent that never loses.
+# TCSS-435
+HW #1 - TicTacToe agent that never loses.
