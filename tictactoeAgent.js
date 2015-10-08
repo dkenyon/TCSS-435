@@ -2,7 +2,7 @@
  * Completed by Reid Thompson & Josh Rueschenberg
  * For Dr. Chris Marriott
  * TCSS 435 - Fall '15
- * HW #1 - Tic Tac Toe
+ * HW #1 - Tic Tac Toe AI Agent
  */
 
 var Agent = function () {
@@ -11,9 +11,9 @@ var Agent = function () {
 
 //------------------------------------DIFFERENT AGENT ALGORITHMS---------------------------------------
 
-// OUR BEST SOLUTION...
+// OUR BEST SOLUTION...LEAVE BLANK UNTIL ALL OPTIONS HAVE BEEN CONSIDERED
 Agent.prototype.selectMove = function(board) {
-    
+	
 }
 
 // ORIGINAL PROVIDED SOLUTION...
