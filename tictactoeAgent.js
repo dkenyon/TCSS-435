@@ -31,9 +31,9 @@ Agent.prototype.getCurrPlyr = function(board) {
 	var p2Moves = board.O;
 	var currPlyrsIdx = -1; // initial invalid value (for error handling)
 	if (p1Moves.length > p2Moves.length) {
-		currPlyrsIdx = 2;
+		currPlyrsIdx = 2; // O's turn
 	} else { // p1Moves.length == p2Moves.length
-		currPlyrsIdx = 1;
+		currPlyrsIdx = 1; // X's turn'
 	}
 	return currPlyrsIdx;
 }
@@ -42,16 +42,49 @@ Agent.prototype.getCurrPlyr = function(board) {
  * Helper method - returns a winning, if possible.
  * Otherwise, if winning isn't an option, it returns -1.
  */
-Agent.prototype.getWinningMove = function(freeCells, currPlyr) {
+Agent.prototype.getWinningMove = function(freeCells, currPlyr, board) {
 	var returnedMoveIdx = -1; // assume you can't win unless a move is found
-	if (freeCells.length >= 8) { // neither player can win on first turn
-		return returnedMoveIdx;
-	} else {
-		for (var i = 0; i < freeCells.length; i++) {
+	for (var i = 0; i < freeCells.length; i++) {
 		var indvCell = freeCells[i];
-		// check if it's a corner
-		// add more code here ...
+		// check if winning move could be a corner cell
+		if (indvCell == 8 || indvCell == 6 || indvCell == 4 || indvCell == 2) {
+			var cornerMoveWins = winningCornerMoveCheck(indvCell, currPlyr, board);
+			if (cornerMoveWins) {
+				return indvCell;
+			}
+		}
 	}
+}
+
+/*
+ * Helper method - returns true if indvCell is a winning move and false otherwise.
+ */
+Agent.prototype.winningCornerMoveCheck = function(indvCell, currPlyr, board) {
+	var isWinningMove = false;
+	if (indvCell == 8) { // top left
+		if (currPlyr == 1) { // X's move
+			
+		} else { // currPlyr == 2 (O's move)
+			
+		}
+	} else if (indvCell == 6) { // top right
+		if (currPlyr == 1) { // X's move
+
+		} else { // currPlyr == 2 (O's move)
+			
+		}
+	} else if (indvCell == 4) { // bottom left
+		if (currPlyr == 1) { // X's move
+
+		} else { // currPlyr == 2 (O's move)
+			
+		}
+	} else { // indvCell == 2 (bottom right)
+		if (currPlyr == 1) { // X's move
+
+		} else { // currPlyr == 2 (O's move)
+			
+		}
 	}
 }
 
@@ -84,7 +117,10 @@ Agent.prototype.selectMoveWithRules = function(board) {
 	var currPlyr = getCurrPlyr(board);
 
 	// Rule 1 - Win, if possible.
-	var winningMovesIdx = getWinningMove(freeCells, currPlyr);
+	var winningMovesIdx = -1;
+	if (freeCells.length <= 5) { // then it's possible to have a winning move
+		winningMovesIdx = getWinningMove(freeCells, currPlyr, board);
+	}
 	if (winningMovesIdx != -1) {
 		return winningMovesIdx;
 	}
