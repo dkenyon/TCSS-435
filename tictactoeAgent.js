@@ -23,10 +23,26 @@ Agent.prototype.getFreeCells = function(board) {
 } 
 
 /*
+ * Helper method - determines which player's turn it is currently.
+ * Returns a 1 for P1 (Xs) and a 2 for P2 (Os).
+ */
+Agent.prototype.getCurrPlyr = function(board) {
+	var p1Moves = board.X; // remember! - X's always go first
+	var p2Moves = board.O;
+	var currPlyrsIdx = -1; // initial invalid value (for error handling)
+	if (p1Moves.length > p2Moves.length) {
+		currPlyrsIdx = 2;
+	} else { // p1Moves.length == p2Moves.length
+		currPlyrsIdx = 1;
+	}
+	return currPlyrsIdx;
+}
+
+/*
  * Helper method - returns a winning, if possible.
  * Otherwise, if winning isn't an option, it returns -1.
  */
-Agent.prototype.getWinningMove = function(freeCells) {
+Agent.prototype.getWinningMove = function(freeCells, currPlyr) {
 	var returnedMoveIdx = -1; // assume you can't win unless a move is found
 	if (freeCells.length >= 8) { // neither player can win on first turn
 		return returnedMoveIdx;
@@ -34,7 +50,7 @@ Agent.prototype.getWinningMove = function(freeCells) {
 		for (var i = 0; i < freeCells.length; i++) {
 		var indvCell = freeCells[i];
 		// check if it's a corner
-
+		// add more code here ...
 	}
 	}
 }
@@ -61,11 +77,17 @@ Agent.prototype.selectMoveAtRandom = function(board) {
  * Algorithm based on TicTacToe rules discussed in class.
  */
 Agent.prototype.selectMoveWithRules = function(board) {
+	// get all free cells on gameboard
 	var freeCells = getFreeCells(board);
 
+	// determine which player's turn it is
+	var currPlyr = getCurrPlyr(board);
+
 	// Rule 1 - Win, if possible.
-	var winningMovesIdx = getWinningMove();
+	var winningMovesIdx = getWinningMove(freeCells, currPlyr);
 	if (winningMovesIdx != -1) {
 		return winningMovesIdx;
 	}
+
+	// Rule 2 - ...
 } 
