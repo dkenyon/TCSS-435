@@ -13,7 +13,12 @@ var Agent = function () {
 
 // OUR BEST SOLUTION...
 Agent.prototype.selectMove = function(board) {
+	var freeCells = [];
+    for (var i = 1; i < 10; i++) {
+        if (board.cellFree(i)) freeCells.push(i);
+    }
     
+    return null;
 }
 
 // ORIGINAL PROVIDED SOLUTION...
