@@ -138,7 +138,7 @@ Agent.prototype.winningCenterMoveCheck = function(indvCell, currPlyr, board) {
 } 
 
 /*
- * Helper method - returns a winning, if possible.
+ * Helper method - returns a winning move's index, if possible.
  * Otherwise, if winning isn't an option, it returns -1.
  */
 Agent.prototype.getWinningMove = function(freeCells, currPlyr, board) {
@@ -168,10 +168,33 @@ Agent.prototype.getWinningMove = function(freeCells, currPlyr, board) {
 	return returnedMoveIdx;
 }
 
+/*
+ * Helper method - returns true if opposing player has a twoInARow that needs blocking and false otherwise.
+ */
+Agent.prototype.determineWhetherOpponentNeedsToBeBlocked = function(freeCells, currPlyrsPrevMoves, oppPlyrsPrevMoves) {
+	
+} 
+
+/*
+ * Helper method - returns a blocking move's index, if necessary (meaning opponent has a twoInARow).
+ * Otherwise, it returns -1.
+ */
+Agent.prototype.getBlockingMove = function(freeCells, currPlyrsIdx, oppPlyrsIdx, board)  { // all params necessary?
+	var blockingMovesIdx = -1; // assume not blocking move is necessary unless one is found
+
+	var currPlyrsPrevMoves = getCurrPlyrsPrevMoves(currPlyrsIdx);
+	var oppPlyrsPrevMoves = getCurrPlyrsPrevMoves(oppPlyrsIdx);
+
+	var needToBlockOpponent = determineWhetherOpponentNeedsToBeBlocked(freeCells, currPlyrsPrevMoves, oppPlyrsPrevMoves);
+	if (needToBlockOpponent) {
+		blockingMovesIdx = getBlockingMove()
+	}
+}
+
 //---------------VARIOUS AGENT AI ALGORITHMS---------------
 
 // OUR BEST SOLUTION...LEAVE BLANK UNTIL ALL OPTIONS HAVE BEEN CONSIDERED
-// 
+// Reid: I think steps 1 & 2 are necessary.
 Agent.prototype.selectMove = function(board) {
 	// Step 1: Figure out which cells are free to play on in gameboard
 	var freeCells = getFreeCells(board);
@@ -190,9 +213,12 @@ Agent.prototype.selectMoveAtRandom = function(board) {
 }
 
 /*
- * Algorithm based on TicTacToe rules discussed in class.
+ * Algorithm based on TicTacToe rules discussed in class and from the TicTacToe Wikipedia article.
+ * That article has be found here: https://en.wikipedia.org/wiki/Tic-tac-toe#Strategy .
  */
 Agent.prototype.selectMoveWithRules = function(board) {
+	var optimalMovesIdx = -1;
+
 	// get all free cells on gameboard
 	var freeCells = getFreeCells(board);
 
@@ -201,14 +227,32 @@ Agent.prototype.selectMoveWithRules = function(board) {
 
 	// START OF RULE-BASED ALGORITHM!
 
+	// TODO: ***still need to handle edge cases (ie. 1st, 2nd, 3rd, & 4th moves)***
+
+	// Rule 0 - handle edge cases
+	// ...
+
 	// Rule 1 - Win, if possible.
-	var winningMovesIdx = -1;
+	var winningMovesIdx;
 	if (freeCells.length <= 5) { // then it's possible to have a winning move
 		winningMovesIdx = getWinningMove(freeCells, currPlyr, board);
 	}
 	if (winningMovesIdx != -1) {
-		return winningMovesIdx;
+		optimalMovesIdx = winningMovesIdx;
 	}
 
-	// Rule 2 - ...
+	// Rule 2 - Block opponent if they have a twoInARow.
+	var blockingMovesIdx;
+	var oppPlyrsIdx = currPlyr == 1 ? 2 : 1;
+	if (freeCells.length <= 5) {
+		// all params in this function call necessary? - ie. board & freeCells
+		blockingMovesIdx = getBlockingMove(freeCells, currPlyrsIdx, oppPlyrsIdx, board);
+	}
+	if (blockingMovesIdx != -1) {
+		optimalMovesIdx = blockingMovesIdx;
+	}
+
+	// Rule 3 - ...
+
+	return optimalMovesIdx;
 } 
