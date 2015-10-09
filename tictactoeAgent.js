@@ -57,35 +57,52 @@ Agent.prototype.getWinningMove = function(freeCells, currPlyr, board) {
 }
 
 /*
+ * Helper method - returns true if any corner move choice creates a threeInARow.
+ * Returns false otherwise.
+ */
+Agent.prototype.determineCornerMoveWinsGame = function (currPlyrMoves, middleIdx, oppCornerIdx) {
+	var controlsMiddleSpace = false;
+	var controlsOppositeCornerSpace = false; 
+	for (var i = 0; i < currPlyrMoves.length; i++) {
+		var currMove = currPlyrMoves[i];
+		if (currMove == middleIdx) {
+			controlsMiddleSpace = true;
+		} else if (currMove == oppCornerIdx) {
+			controlsOppositeCornerSpace = true;
+		}
+	}
+	return controlsMiddleSpace && controlsOppositeCornerSpace;
+} 
+
+/*
  * Helper method - returns true if indvCell is a winning move and false otherwise.
  */
 Agent.prototype.winningCornerMoveCheck = function(indvCell, currPlyr, board) {
 	var isWinningMove = false;
-	if (indvCell == 8) { // top left
-		if (currPlyr == 1) { // X's move
-			
-		} else { // currPlyr == 2 (O's move)
-			
-		}
-	} else if (indvCell == 6) { // top right
-		if (currPlyr == 1) { // X's move
 
-		} else { // currPlyr == 2 (O's move)
-			
-		}
-	} else if (indvCell == 4) { // bottom left
-		if (currPlyr == 1) { // X's move
-
-		} else { // currPlyr == 2 (O's move)
-			
-		}
-	} else { // indvCell == 2 (bottom right)
-		if (currPlyr == 1) { // X's move
-
-		} else { // currPlyr == 2 (O's move)
-			
-		}
+	var currPlyrMoves = [];
+	if (currPlyr == 1) { // X's move
+		currPlyrMoves = board.X;
+	} else { // currPlyr == 2 (O's move)
+		currPlyrMoves = board.O;
 	}
+
+	var threeInARowFromCornerMove = false; // assume game's not won yet
+	if (indvCell == 8) { // top left
+		threeInARowFromCornerMove = determineCornerMoveWinsGame(currPlyrMoves, 1, 6); // check right
+									|| determineCornerMoveWinsGame(currPlyrMoves, 3, 4); // check down
+	} else if (indvCell == 6) { // top right
+		threeInARowFromCornerMove = determineCornerMoveWinsGame(currPlyrMoves, 1, 8) // check left
+									|| determineCornerMoveWinsGame(currPlyrMoves, 7, 2); // check down
+	} else if (indvCell == 4) { // bottom left
+		threeInARowFromCornerMove = determineCornerMoveWinsGame(currPlyrMoves, 9, 2) // check right
+									|| determineCornerMoveWinsGame(currPlyrMoves, 3, 8); // check up
+	} else { // indvCell == 2 (bottom right)
+		threeInARowFromCornerMove = determineCornerMoveWinsGame(currPlyrMoves, 9, 4) // check left
+									|| determineCornerMoveWinsGame(currPlyrMoves, 7, 6); // check up
+	}
+
+	return threeInARowFromCornerMove;
 }
 
 //---------------VARIOUS AGENT AI ALGORITHMS---------------
