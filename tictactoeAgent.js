@@ -5,7 +5,7 @@
  * HW #1 - Tic Tac Toe AI Agent
  */
 
-var Agent = function () {
+var Agent = function() {
 	
 }
 
@@ -39,82 +39,102 @@ Agent.prototype.getCurrPlyr = function(board) {
 }
 
 /*
+ * Helper method - returns the current player's list of moves as an array of integers.
+ */
+Agent.prototype.getCurrPlyrsPrevMoves = function(currPlyr, board) {
+	var currPlyrsPrevMoves = [];
+	if (currPlyr == 1) { // X's move
+		currPlyrsPrevMoves = board.X;
+	} else { // currPlyr == 2 (O's move)
+		currPlyrsPrevMoves = board.O;
+	}
+
+	return currPlyrsPrevMoves;
+}
+
+/*
+ * Helper method - returns true if given move choice creates a threeInARow.
+ * Returns false otherwise.
+ */
+Agent.prototype.determineWhetherMoveWinsGame = function(currPlyrsPrevMoves, firstCell, secondCell) {
+	var controlsFirstCell= false;
+	var controlsSecondCell = false; 
+	for (var i = 0; i < currPlyrsPrevMoves.length; i++) {
+		var currMove = currPlyrsPrevMoves[i];
+		if (currMove == firstCell) {
+			controlsFirstCell = true;
+		} else if (currMove == secondCell) {
+			controlsSecondCell= true;
+		}
+	}
+	return controlsFirstCell && controlsSecondCell;
+} 
+
+/*
  * Helper method - returns true if indvCell (corner cell) is a winning move and false otherwise.
  */
 Agent.prototype.winningCornerMoveCheck = function(indvCell, currPlyr, board) {
 	var isWinningMove = false;
 
-	var currPlyrMoves = [];
-	if (currPlyr == 1) { // X's move
-		currPlyrMoves = board.X;
-	} else { // currPlyr == 2 (O's move)
-		currPlyrMoves = board.O;
-	}
+	var currPlyrsPrevMoves = getCurrPlyrsPrevMoves(currPlyr, board);
 
 	var threeInARowFromCornerMove = false; // assume game's not won yet
 	if (indvCell == 8) { // top left
-		threeInARowFromCornerMove = determineCornerMoveWinsGame(currPlyrMoves, 1, 6); // check right
-									|| determineCornerMoveWinsGame(currPlyrMoves, 3, 4); // check down
+		threeInARowFromCornerMove = determineWhetherMoveWinsGame(currPlyrsPrevMoves, 1, 6); // check right
+									|| determineWhetherMoveWinsGame(currPlyrsPrevMoves, 3, 4); // check down
 	} else if (indvCell == 6) { // top right
-		threeInARowFromCornerMove = determineCornerMoveWinsGame(currPlyrMoves, 1, 8) // check left
-									|| determineCornerMoveWinsGame(currPlyrMoves, 7, 2); // check down
+		threeInARowFromCornerMove = determineWhetherMoveWinsGame(currPlyrsPrevMoves, 1, 8) // check left
+									|| determineWhetherMoveWinsGame(currPlyrsPrevMoves, 7, 2); // check down
 	} else if (indvCell == 4) { // bottom left
-		threeInARowFromCornerMove = determineCornerMoveWinsGame(currPlyrMoves, 9, 2) // check right
-									|| determineCornerMoveWinsGame(currPlyrMoves, 3, 8); // check up
+		threeInARowFromCornerMove = determineWhetherMoveWinsGame(currPlyrsPrevMoves, 9, 2) // check right
+									|| determineWhetherMoveWinsGame(currPlyrsPrevMoves, 3, 8); // check up
 	} else { // indvCell == 2 (bottom right)
-		threeInARowFromCornerMove = determineCornerMoveWinsGame(currPlyrMoves, 9, 4) // check left
-									|| determineCornerMoveWinsGame(currPlyrMoves, 7, 6); // check up
+		threeInARowFromCornerMove = determineWhetherMoveWinsGame(currPlyrsPrevMoves, 9, 4) // check left
+									|| determineWhetherMoveWinsGame(currPlyrsPrevMoves, 7, 6); // check up
 	}
 
 	return threeInARowFromCornerMove;
 }
 
 /*
- * Helper method - returns true if any corner move choice creates a threeInARow.
- * Returns false otherwise.
- */
-Agent.prototype.determineCornerMoveWinsGame = function (currPlyrMoves, middleIdx, oppCornerIdx) {
-	var controlsMiddleSpace = false;
-	var controlsOppositeCornerSpace = false; 
-	for (var i = 0; i < currPlyrMoves.length; i++) {
-		var currMove = currPlyrMoves[i];
-		if (currMove == middleIdx) {
-			controlsMiddleSpace = true;
-		} else if (currMove == oppCornerIdx) {
-			controlsOppositeCornerSpace = true;
-		}
-	}
-	return controlsMiddleSpace && controlsOppositeCornerSpace;
-} 
-
-/*
  * Helper method - returns true if indvCell (side middle) is a winning move and false otherwise.
  */
-Agent.prototype.winningSideMiddleMoveCheck = function () {
+Agent.prototype.winningSideMiddleMoveCheck = function(indvCell, currPlyr, board) {
+	var isWinningMove = false;
 
-} 
+	var currPlyrsPrevMoves = getCurrPlyrsPrevMoves(currPlyr, board);
 
-/*
- * Helper method - returns true if any middle side move choice creates a threeInARow.
- * Returns false otherwise.
- */
-Agent.prototype.determineSideMiddleMoveWinsGame = function () {
+	var threeInARowFromMiddleMove = false; // assume game's not won yet
 
+	if (indvCell == 1) { // top center
+		threeInARowFromMiddleMove = determineWhetherMoveWinsGame(currPlyrsPrevMoves, 8, 6); // check horizontal
+									|| determineWhetherMoveWinsGame(currPlyrsPrevMoves, 5, 9); // check vertical
+	} else if (indvCell == 7) { // right center
+		threeInARowFromMiddleMove = determineWhetherMoveWinsGame(currPlyrsPrevMoves, 3, 5) // check horizontal
+									|| determineWhetherMoveWinsGame(currPlyrsPrevMoves, 6, 2); // check vertical
+	} else if (indvCell == 9) { // bottom center
+		threeInARowFromMiddleMove = determineWhetherMoveWinsGame(currPlyrsPrevMoves, 4, 2) // check horizontal
+									|| determineWhetherMoveWinsGame(currPlyrsPrevMoves, 1, 5); // check vertical
+	} else { // indvCell == 3 (left center)
+		threeInARowFromMiddleMove = determineWhetherMoveWinsGame(currPlyrsPrevMoves, 5, 7) // check horizontal
+									|| determineWhetherMoveWinsGame(currPlyrsPrevMoves, 8, 4); // check vertical
+	}
+
+	return threeInARowFromMiddleMove;
 } 
 
 /*
  * Helper method - returns true if indvCell (center) is a winning move and false otherwise.
  */
-Agent.prototype.winningCenterMoveCheck = function () {
+Agent.prototype.winningCenterMoveCheck = function(indvCell, currPlyr, board) {
+	var isWinningMove = false;
 
-} 
+	var currPlyrsPrevMoves = getCurrPlyrsPrevMoves(currPlyr, board);
 
-/*
- * Helper method - returns true if the center cell move choice creates a threeInARow.
- * Returns false otherwise.
- */
-Agent.prototype.determineCenterMoveWinsGame = function () {
-
+	return determineWhetherMoveWinsGame(currPlyrsPrevMoves, 1, 9) // checks vertical
+			|| determineWhetherMoveWinsGame(currPlyrsPrevMoves, 3, 7) // checks horizontal
+			|| determineWhetherMoveWinsGame(currPlyrsPrevMoves, 8, 2) // checks top left to bottom right
+			|| determineWhetherMoveWinsGame(currPlyrsPrevMoves, 6, 4); // checks top right to bottom left
 } 
 
 /*
@@ -133,13 +153,13 @@ Agent.prototype.getWinningMove = function(freeCells, currPlyr, board) {
 			}
 		// check if winning move could be a 'side middle' cell	
 		} else if (indvCell == 1 || indvCell == 3 || indvCell == 7 || indvCell == 9) {
-			var sideMiddleMoveWins = sideMiddleMoveCheck();
+			var sideMiddleMoveWins = winningSideMiddleMoveCheck(indvCell, currPlyr, board);
 			if (sideMiddleMoveWins) {
 				returnedMoveIdx = indvCell;
 			}
 		// check if winning move could be center cell	
 		} else { // indvCell = 5
-			var centerMoveWins = centerMoveCheck();
+			var centerMoveWins = winningCenterMoveCheck(indvCell, currPlyr, board);
 			if (centerMoveWins) {
 				returnedMoveIdx = indvCell;
 			}	
@@ -156,7 +176,8 @@ Agent.prototype.selectMove = function(board) {
 	// Step 1: Figure out which cells are free to play on in gameboard
 	var freeCells = getFreeCells(board);
 
-	// Step 2: 
+	// Step 2: Determine which player's turn it is
+	var currPlyr = getCurrPlyr(board);
 }
 
 /* 
@@ -177,6 +198,8 @@ Agent.prototype.selectMoveWithRules = function(board) {
 
 	// determine which player's turn it is
 	var currPlyr = getCurrPlyr(board);
+
+	// START OF RULE-BASED ALGORITHM!
 
 	// Rule 1 - Win, if possible.
 	var winningMovesIdx = -1;
