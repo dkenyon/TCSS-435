@@ -26,7 +26,7 @@ var getFreeCells = function(board) {
  * Helper method - determines which player's turn it is currently.
  * Returns a 1 for P1 (Xs) and a 2 for P2 (Os).
  */
-Agent.prototype.getCurrPlyr = function(board) {
+var getCurrPlyr = function(board) {
     var p1Moves = board.X; // remember! - X's always go first
     var p2Moves = board.O;
     var currPlyrsIdx = -1; // initial invalid value (for error handling)
@@ -39,10 +39,37 @@ Agent.prototype.getCurrPlyr = function(board) {
 };
 
 /*
+ * When less than 4 moves have been made total (2 by each player),
+ * the next move can be selected pseudo-randomly with some guidance
+ */
+var getInitialMoves = function(freeCells, currPlyr, board) {
+    var p1Moves = board.X;
+    var p2Moves = board.O;
+    //random number between 1 and 4 to choose a starting corner if we're player 1
+    var randCorner = Math.floor(Math.random() * 4) + 1;
+
+    if (p1Moves.length <= 2 || p2Moves.length <= 2) {
+        if (currPlyr === 2 && p1Moves.indexOf(5) < 0) {
+            return 5;
+        } else {
+            if (randCorner === 1 && freeCells.indexOf(8) >= 0) {
+                return 8;
+            } else if (randCorner === 2 && freeCells.indexOf(6) >= 0) {
+                return 6;
+            } else if (randCorner === 3 && freeCells.indexOf(4) >= 0) {
+                return 4;
+            } else {
+                return 2;
+            }
+        }
+    }
+};
+
+/*
  * Helper method - returns a winning, if possible.
  * Otherwise, if winning isn't an option, it returns -1.
  */
-Agent.prototype.getWinningMove = function(freeCells, currPlyr, board) {
+var getWinningMove = function(freeCells, currPlyr, board) {
     var returnedMoveIdx = -1; // assume you can't win unless a move is found
     for (var i = 0; i < freeCells.length; i++) {
         var indvCell = freeCells[i];
@@ -59,7 +86,7 @@ Agent.prototype.getWinningMove = function(freeCells, currPlyr, board) {
 /*
  * Helper method - returns true if indvCell is a winning move and false otherwise.
  */
-Agent.prototype.winningCornerMoveCheck = function(indvCell, currPlyr, board) {
+var winningCornerMoveCheck = function(indvCell, currPlyr, board) {
     var isWinningMove = false;
     if (indvCell == 8) { // top left
         if (currPlyr == 1) { // X's move
@@ -95,6 +122,14 @@ Agent.prototype.winningCornerMoveCheck = function(indvCell, currPlyr, board) {
 Agent.prototype.selectMove = function(board) {
     // Step 1: Figure out which cells are free to play on in gameboard
     var freeCells = getFreeCells(board);
+    var p1Moves = board.X;
+    var p2Moves = board.O;
+
+    //True A.I. automation doesn't really need to happen until at least 3 moves have been made (2 for X, 1 for O)
+    if (p1Moves.length <= 2 || p2Moves.length < 2) {
+        return getInitialMoves(freeCells, getCurrPlyr(board), board);
+    }
+
 };
 
 /*
