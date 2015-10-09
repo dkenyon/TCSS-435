@@ -39,43 +39,7 @@ Agent.prototype.getCurrPlyr = function(board) {
 }
 
 /*
- * Helper method - returns a winning, if possible.
- * Otherwise, if winning isn't an option, it returns -1.
- */
-Agent.prototype.getWinningMove = function(freeCells, currPlyr, board) {
-	var returnedMoveIdx = -1; // assume you can't win unless a move is found
-	for (var i = 0; i < freeCells.length; i++) {
-		var indvCell = freeCells[i];
-		// check if winning move could be a corner cell
-		if (indvCell == 8 || indvCell == 6 || indvCell == 4 || indvCell == 2) {
-			var cornerMoveWins = winningCornerMoveCheck(indvCell, currPlyr, board);
-			if (cornerMoveWins) {
-				return indvCell;
-			}
-		}
-	}
-}
-
-/*
- * Helper method - returns true if any corner move choice creates a threeInARow.
- * Returns false otherwise.
- */
-Agent.prototype.determineCornerMoveWinsGame = function (currPlyrMoves, middleIdx, oppCornerIdx) {
-	var controlsMiddleSpace = false;
-	var controlsOppositeCornerSpace = false; 
-	for (var i = 0; i < currPlyrMoves.length; i++) {
-		var currMove = currPlyrMoves[i];
-		if (currMove == middleIdx) {
-			controlsMiddleSpace = true;
-		} else if (currMove == oppCornerIdx) {
-			controlsOppositeCornerSpace = true;
-		}
-	}
-	return controlsMiddleSpace && controlsOppositeCornerSpace;
-} 
-
-/*
- * Helper method - returns true if indvCell is a winning move and false otherwise.
+ * Helper method - returns true if indvCell (corner cell) is a winning move and false otherwise.
  */
 Agent.prototype.winningCornerMoveCheck = function(indvCell, currPlyr, board) {
 	var isWinningMove = false;
@@ -105,6 +69,85 @@ Agent.prototype.winningCornerMoveCheck = function(indvCell, currPlyr, board) {
 	return threeInARowFromCornerMove;
 }
 
+/*
+ * Helper method - returns true if any corner move choice creates a threeInARow.
+ * Returns false otherwise.
+ */
+Agent.prototype.determineCornerMoveWinsGame = function (currPlyrMoves, middleIdx, oppCornerIdx) {
+	var controlsMiddleSpace = false;
+	var controlsOppositeCornerSpace = false; 
+	for (var i = 0; i < currPlyrMoves.length; i++) {
+		var currMove = currPlyrMoves[i];
+		if (currMove == middleIdx) {
+			controlsMiddleSpace = true;
+		} else if (currMove == oppCornerIdx) {
+			controlsOppositeCornerSpace = true;
+		}
+	}
+	return controlsMiddleSpace && controlsOppositeCornerSpace;
+} 
+
+/*
+ * Helper method - returns true if indvCell (side middle) is a winning move and false otherwise.
+ */
+Agent.prototype.winningSideMiddleMoveCheck = function () {
+
+} 
+
+/*
+ * Helper method - returns true if any middle side move choice creates a threeInARow.
+ * Returns false otherwise.
+ */
+Agent.prototype.determineSideMiddleMoveWinsGame = function () {
+
+} 
+
+/*
+ * Helper method - returns true if indvCell (center) is a winning move and false otherwise.
+ */
+Agent.prototype.winningCenterMoveCheck = function () {
+
+} 
+
+/*
+ * Helper method - returns true if the center cell move choice creates a threeInARow.
+ * Returns false otherwise.
+ */
+Agent.prototype.determineCenterMoveWinsGame = function () {
+
+} 
+
+/*
+ * Helper method - returns a winning, if possible.
+ * Otherwise, if winning isn't an option, it returns -1.
+ */
+Agent.prototype.getWinningMove = function(freeCells, currPlyr, board) {
+	var returnedMoveIdx = -1; // assume you can't win unless a move is found
+	for (var i = 0; i < freeCells.length; i++) {
+		var indvCell = freeCells[i];
+		// check if winning move could be a corner cell
+		if (indvCell == 8 || indvCell == 6 || indvCell == 4 || indvCell == 2) {
+			var cornerMoveWins = winningCornerMoveCheck(indvCell, currPlyr, board);
+			if (cornerMoveWins) {
+				returnedMoveIdx = indvCell;
+			}
+		// check if winning move could be a 'side middle' cell	
+		} else if (indvCell == 1 || indvCell == 3 || indvCell == 7 || indvCell == 9) {
+			var sideMiddleMoveWins = sideMiddleMoveCheck();
+			if (sideMiddleMoveWins) {
+				returnedMoveIdx = indvCell;
+			}
+		// check if winning move could be center cell	
+		} else { // indvCell = 5
+			var centerMoveWins = centerMoveCheck();
+			if (centerMoveWins) {
+				returnedMoveIdx = indvCell;
+			}	
+		}
+	}
+	return returnedMoveIdx;
+}
+
 //---------------VARIOUS AGENT AI ALGORITHMS---------------
 
 // OUR BEST SOLUTION...LEAVE BLANK UNTIL ALL OPTIONS HAVE BEEN CONSIDERED
@@ -112,6 +155,8 @@ Agent.prototype.winningCornerMoveCheck = function(indvCell, currPlyr, board) {
 Agent.prototype.selectMove = function(board) {
 	// Step 1: Figure out which cells are free to play on in gameboard
 	var freeCells = getFreeCells(board);
+
+	// Step 2: 
 }
 
 /* 
