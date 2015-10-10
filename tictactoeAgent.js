@@ -174,11 +174,28 @@ var getWinningMove = function(freeCells, currPlyr, board) {
 /*
  * Helper method - returns true if opposing player has a twoInARow that needs blocking and false otherwise.
  */
-var determineWhetherOpponentNeedsToBeBlocked = function(freeCells, currPlyrsPrevMoves, oppPlyrsPrevMoves) {
+var determineWhetherOpponentNeedsToBeBlocked = function(currPlyrsPrevMoves, oppPlyrsPrevMoves) {
 	var oppNeedsToBeBlocked = false; // assume that currPlyr doesn't need to block opponent unless necessary
 
+	var twoInARowsNeededToBeBlockedArr = [[8,3], [1,5], [6,7], [4,3],[5,9],[7,2], // checking all vertical twoInARows
+										[8,1], [1,6], [3,5], [5,7], [4,9], [9,2]; // checking all horiz twoInARows
 
+	for (var i = 0; i < twoInARowsNeededToBeBlockedArr.length; i++) {
+		var currTwoInARow = twoInARowsNeededToBeBlockedArr[i];
+
+		if (currPlyrsPrevMoves.includes(currTwoInARow[0])
+				&& currPlyrsPrevMoves.includes(currTwoInARow[1])) {
+			oppNeedsToBeBlocked = true;
+			break;
+		}
+	}
+
+	return oppNeedsToBeBlocked;
 } 
+
+/*
+ *
+ */
 
 /*
  * Helper method - returns a blocking move's index, if necessary (meaning opponent has a twoInARow).
