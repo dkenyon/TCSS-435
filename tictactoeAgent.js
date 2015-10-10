@@ -265,11 +265,11 @@ var selectMoveWithRules = function(board) {
     // Rule 0 - handle edge cases
     // ...
     if (freeCells.length >= 6) {
-        return getInitialMoves(freeCells, currPlyr, board);
+        optimalMovesIdx = getInitialMoves(freeCells, currPlyr, board);
     }
 
     // Rule 1 - Win, if possible.
-    var winningMovesIdx;
+    var winningMovesIdx = -1;
     if (freeCells.length <= 5) { // then it's possible to have a winning move
         winningMovesIdx = getWinningMove(freeCells, currPlyr, board);
     }
@@ -278,7 +278,7 @@ var selectMoveWithRules = function(board) {
     }
 
     // Rule 2 - Block opponent if they have a twoInARow.
-    var blockingMovesIdx;
+    var blockingMovesIdx = -1;
     var oppPlyrsIdx = currPlyr == 1 ? 2 : 1;
     if (freeCells.length <= 5) {
         // all params in this function call necessary? - ie. board & freeCells
