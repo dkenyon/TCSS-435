@@ -5,6 +5,9 @@
  * HW #1 - Tic Tac Toe AI Agent
  */
 
+/*
+ * Declaration of Agent 'class'.
+ */ 
 var Agent = function() {
 	
 }
@@ -14,7 +17,7 @@ var Agent = function() {
 /*
  * Helper method - returns all free cells on gameboard.
  */
-Agent.prototype.getFreeCells = function(board) {
+var getFreeCells = function(board) {
 	var freeCells = [];
     for (var i = 1; i < 10; i++) {
         if (board.cellFree(i)) freeCells.push(i);
@@ -26,7 +29,7 @@ Agent.prototype.getFreeCells = function(board) {
  * Helper method - determines which player's turn it is currently.
  * Returns a 1 for P1 (Xs) and a 2 for P2 (Os).
  */
-Agent.prototype.getCurrPlyr = function(board) {
+var getCurrPlyr = function(board) {
 	var p1Moves = board.X; // remember! - X's always go first
 	var p2Moves = board.O;
 	var currPlyrsIdx = -1; // initial invalid value (for error handling)
@@ -41,7 +44,7 @@ Agent.prototype.getCurrPlyr = function(board) {
 /*
  * Helper method - returns the current player's list of moves as an array of integers.
  */
-Agent.prototype.getCurrPlyrsPrevMoves = function(currPlyr, board) {
+var getCurrPlyrsPrevMoves = function(currPlyr, board) {
 	var currPlyrsPrevMoves = [];
 	if (currPlyr == 1) { // X's move
 		currPlyrsPrevMoves = board.X;
@@ -56,7 +59,7 @@ Agent.prototype.getCurrPlyrsPrevMoves = function(currPlyr, board) {
  * Helper method - returns true if given move choice creates a threeInARow.
  * Returns false otherwise.
  */
-Agent.prototype.determineWhetherMoveWinsGame = function(currPlyrsPrevMoves, firstCell, secondCell) {
+var determineWhetherMoveWinsGame = function(currPlyrsPrevMoves, firstCell, secondCell) {
 	var controlsFirstCell= false;
 	var controlsSecondCell = false; 
 	for (var i = 0; i < currPlyrsPrevMoves.length; i++) {
@@ -73,7 +76,7 @@ Agent.prototype.determineWhetherMoveWinsGame = function(currPlyrsPrevMoves, firs
 /*
  * Helper method - returns true if indvCell (corner cell) is a winning move and false otherwise.
  */
-Agent.prototype.winningCornerMoveCheck = function(indvCell, currPlyr, board) {
+var winningCornerMoveCheck = function(indvCell, currPlyr, board) {
 	var isWinningMove = false;
 
 	var currPlyrsPrevMoves = getCurrPlyrsPrevMoves(currPlyr, board);
@@ -99,7 +102,7 @@ Agent.prototype.winningCornerMoveCheck = function(indvCell, currPlyr, board) {
 /*
  * Helper method - returns true if indvCell (side middle) is a winning move and false otherwise.
  */
-Agent.prototype.winningSideMiddleMoveCheck = function(indvCell, currPlyr, board) {
+var winningSideMiddleMoveCheck = function(indvCell, currPlyr, board) {
 	var isWinningMove = false;
 
 	var currPlyrsPrevMoves = getCurrPlyrsPrevMoves(currPlyr, board);
@@ -126,7 +129,7 @@ Agent.prototype.winningSideMiddleMoveCheck = function(indvCell, currPlyr, board)
 /*
  * Helper method - returns true if indvCell (center) is a winning move and false otherwise.
  */
-Agent.prototype.winningCenterMoveCheck = function(indvCell, currPlyr, board) {
+var winningCenterMoveCheck = function(indvCell, currPlyr, board) {
 	var isWinningMove = false;
 
 	var currPlyrsPrevMoves = getCurrPlyrsPrevMoves(currPlyr, board);
@@ -141,7 +144,7 @@ Agent.prototype.winningCenterMoveCheck = function(indvCell, currPlyr, board) {
  * Helper method - returns a winning move's index, if possible.
  * Otherwise, if winning isn't an option, it returns -1.
  */
-Agent.prototype.getWinningMove = function(freeCells, currPlyr, board) {
+var getWinningMove = function(freeCells, currPlyr, board) {
 	var returnedMoveIdx = -1; // assume you can't win unless a move is found
 	for (var i = 0; i < freeCells.length; i++) {
 		var indvCell = freeCells[i];
@@ -171,7 +174,7 @@ Agent.prototype.getWinningMove = function(freeCells, currPlyr, board) {
 /*
  * Helper method - returns true if opposing player has a twoInARow that needs blocking and false otherwise.
  */
-Agent.prototype.determineWhetherOpponentNeedsToBeBlocked = function(freeCells, currPlyrsPrevMoves, oppPlyrsPrevMoves) {
+var determineWhetherOpponentNeedsToBeBlocked = function(freeCells, currPlyrsPrevMoves, oppPlyrsPrevMoves) {
 	
 } 
 
@@ -179,7 +182,7 @@ Agent.prototype.determineWhetherOpponentNeedsToBeBlocked = function(freeCells, c
  * Helper method - returns a blocking move's index, if necessary (meaning opponent has a twoInARow).
  * Otherwise, it returns -1.
  */
-Agent.prototype.getBlockingMove = function(freeCells, currPlyrsIdx, oppPlyrsIdx, board)  { // all params necessary?
+var getBlockingMove = function(freeCells, currPlyrsIdx, oppPlyrsIdx, board)  { // all params necessary?
 	var blockingMovesIdx = -1; // assume not blocking move is necessary unless one is found
 
 	var currPlyrsPrevMoves = getCurrPlyrsPrevMoves(currPlyrsIdx);
