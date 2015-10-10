@@ -90,6 +90,8 @@ GameBoard.prototype.clone = function () {
 GameBoard.prototype.playGame = function (pOne, pTwo) {
     var that = this;
 
+    // pOne is the rule-based agent
+    // pTwo is the random agent
     function loop() {
         if (that.playerOne) that.move(pOne.selectMove(that.clone()));
         else that.move(pTwo.selectMove(that.clone()));

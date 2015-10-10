@@ -236,7 +236,7 @@ Agent.prototype.selectMoveAtRandom = function(board) {
 
 /*
  * Algorithm based on TicTacToe rules discussed in class and from the TicTacToe Wikipedia article.
- * That article has be found here: https://en.wikipedia.org/wiki/Tic-tac-toe#Strategy .
+ * That article can be found here: https://en.wikipedia.org/wiki/Tic-tac-toe#Strategy .
  */
 Agent.prototype.selectMoveWithRules = function(board) {
 	var optimalMovesIdx = -1;
