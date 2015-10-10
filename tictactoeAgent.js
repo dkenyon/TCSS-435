@@ -46,7 +46,7 @@ var getCurrPlyr = function(board) {
  */
 var getCurrPlyrsPrevMoves = function(currPlyr, board) {
 	var currPlyrsPrevMoves = [];
-	if (currPlyr == 1) { // X's move
+	if (currPlyr === 1) { // X's move
 		currPlyrsPrevMoves = board.X;
 	} else { // currPlyr == 2 (O's move)
 		currPlyrsPrevMoves = board.O;
@@ -64,9 +64,9 @@ var determineWhetherMoveWinsGame = function(currPlyrsPrevMoves, firstCell, secon
 	var controlsSecondCell = false; 
 	for (var i = 0; i < currPlyrsPrevMoves.length; i++) {
 		var currMove = currPlyrsPrevMoves[i];
-		if (currMove == firstCell) {
+		if (currMove === firstCell) {
 			controlsFirstCell = true;
-		} else if (currMove == secondCell) {
+		} else if (currMove === secondCell) {
 			controlsSecondCell= true;
 		}
 	}
@@ -82,16 +82,16 @@ var winningCornerMoveCheck = function(indvCell, currPlyr, board) {
 	var currPlyrsPrevMoves = getCurrPlyrsPrevMoves(currPlyr, board);
 
 	var threeInARowFromCornerMove = false; // assume game's not won yet
-	if (indvCell == 8) { // top left
+	if (indvCell === 8) { // top left
 		threeInARowFromCornerMove = determineWhetherMoveWinsGame(currPlyrsPrevMoves, 1, 6); // check right
 									|| determineWhetherMoveWinsGame(currPlyrsPrevMoves, 3, 4); // check down
-	} else if (indvCell == 6) { // top right
+	} else if (indvCell === 6) { // top right
 		threeInARowFromCornerMove = determineWhetherMoveWinsGame(currPlyrsPrevMoves, 1, 8) // check left
 									|| determineWhetherMoveWinsGame(currPlyrsPrevMoves, 7, 2); // check down
-	} else if (indvCell == 4) { // bottom left
+	} else if (indvCell === 4) { // bottom left
 		threeInARowFromCornerMove = determineWhetherMoveWinsGame(currPlyrsPrevMoves, 9, 2) // check right
 									|| determineWhetherMoveWinsGame(currPlyrsPrevMoves, 3, 8); // check up
-	} else { // indvCell == 2 (bottom right)
+	} else { // indvCell === 2 (bottom right)
 		threeInARowFromCornerMove = determineWhetherMoveWinsGame(currPlyrsPrevMoves, 9, 4) // check left
 									|| determineWhetherMoveWinsGame(currPlyrsPrevMoves, 7, 6); // check up
 	}
@@ -109,16 +109,16 @@ var winningSideMiddleMoveCheck = function(indvCell, currPlyr, board) {
 
 	var threeInARowFromMiddleMove = false; // assume game's not won yet
 
-	if (indvCell == 1) { // top center
+	if (indvCell === 1) { // top center
 		threeInARowFromMiddleMove = determineWhetherMoveWinsGame(currPlyrsPrevMoves, 8, 6); // check horizontal
 									|| determineWhetherMoveWinsGame(currPlyrsPrevMoves, 5, 9); // check vertical
-	} else if (indvCell == 7) { // right center
+	} else if (indvCell === 7) { // right center
 		threeInARowFromMiddleMove = determineWhetherMoveWinsGame(currPlyrsPrevMoves, 3, 5) // check horizontal
 									|| determineWhetherMoveWinsGame(currPlyrsPrevMoves, 6, 2); // check vertical
-	} else if (indvCell == 9) { // bottom center
+	} else if (indvCell === 9) { // bottom center
 		threeInARowFromMiddleMove = determineWhetherMoveWinsGame(currPlyrsPrevMoves, 4, 2) // check horizontal
 									|| determineWhetherMoveWinsGame(currPlyrsPrevMoves, 1, 5); // check vertical
-	} else { // indvCell == 3 (left center)
+	} else { // indvCell === 3 (left center)
 		threeInARowFromMiddleMove = determineWhetherMoveWinsGame(currPlyrsPrevMoves, 5, 7) // check horizontal
 									|| determineWhetherMoveWinsGame(currPlyrsPrevMoves, 8, 4); // check vertical
 	}
@@ -149,19 +149,19 @@ var getWinningMove = function(freeCells, currPlyr, board) {
 	for (var i = 0; i < freeCells.length; i++) {
 		var indvCell = freeCells[i];
 		// check if winning move could be a corner cell
-		if (indvCell == 8 || indvCell == 6 || indvCell == 4 || indvCell == 2) {
+		if (indvCell === 8 || indvCell === 6 || indvCell === 4 || indvCell === 2) {
 			var cornerMoveWins = winningCornerMoveCheck(indvCell, currPlyr, board);
 			if (cornerMoveWins) {
 				returnedMoveIdx = indvCell;
 			}
 		// check if winning move could be a 'side middle' cell	
-		} else if (indvCell == 1 || indvCell == 3 || indvCell == 7 || indvCell == 9) {
+		} else if (indvCell === 1 || indvCell === 3 || indvCell === 7 || indvCell === 9) {
 			var sideMiddleMoveWins = winningSideMiddleMoveCheck(indvCell, currPlyr, board);
 			if (sideMiddleMoveWins) {
 				returnedMoveIdx = indvCell;
 			}
 		// check if winning move could be center cell	
-		} else { // indvCell = 5
+		} else { // indvCell === 5
 			var centerMoveWins = winningCenterMoveCheck(indvCell, currPlyr, board);
 			if (centerMoveWins) {
 				returnedMoveIdx = indvCell;
@@ -175,7 +175,9 @@ var getWinningMove = function(freeCells, currPlyr, board) {
  * Helper method - returns true if opposing player has a twoInARow that needs blocking and false otherwise.
  */
 var determineWhetherOpponentNeedsToBeBlocked = function(freeCells, currPlyrsPrevMoves, oppPlyrsPrevMoves) {
-	
+	var oppNeedsToBeBlocked = false; // assume that currPlyr doesn't need to block opponent unless necessary
+
+
 } 
 
 /*
