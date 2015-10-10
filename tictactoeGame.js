@@ -93,8 +93,8 @@ GameBoard.prototype.playGame = function (pOne, pTwo) {
     // pOne is the rule-based agent
     // pTwo is the random agent
     function loop() {
-        if (that.playerOne) that.move(pOne.selectMove(that.clone()));
-        else that.move(pTwo.selectMove(that.clone()));
+        if (that.playerOne) that.move(pOne.selectMoveWithRules(that.clone()));
+        else that.move(pTwo.selectMoveAtRandom(that.clone()));
         if (that.gameOver() === 0) {
             window.setTimeout(requestAnimationFrame, 300, loop);
         }
