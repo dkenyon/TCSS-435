@@ -194,23 +194,45 @@ var determineWhetherOpponentNeedsToBeBlocked = function(currPlyrsPrevMoves, oppP
 } 
 
 /*
- *
+ * Helper method - returns the cell index of a random cell from freeCells
  */
+ var randomlyGeneratedValidFreeCellIdx = function(freeCells, currPlyrsPrevMoves, oppPlyrsPrevMoves) {
+ 	var returnedCellIdx = -1;
+
+ 	while (returnedCellIdx === -1 || currPlyrsPrevMoves.includes(returnedCellIdx) 
+ 			|| oppPlyrsPrevMoves.includes(returnedCellIdx)) {
+ 		returnedCellIdx = Math.ceil(Math.random() * freeCells.length);
+ 	}
+
+ 	return returnedCellIdx;
+ }
+
+/*
+ * Helper method - returns the cell index that the current player needs to fill in order to block their opponent.
+ */
+var getCellIdxToBlockOpponent = function(freeCells, currPlyrsPrevMoves, oppPlyrsPrevMoves) {
+	// start with a VALID random cell idx from freeCells
+	var blockingMovesIdx = randomlyGeneratedValidFreeCellIdx(freeCells, currPlyrsPrevMoves, oppPlyrsPrevMoves);
+
+	// do more stuff
+} 
 
 /*
  * Helper method - returns a blocking move's index, if necessary (meaning opponent has a twoInARow).
  * Otherwise, it returns -1.
  */
-var getBlockingMove = function(freeCells, currPlyrsIdx, oppPlyrsIdx, board)  { // all params necessary?
+var getBlockingMove = function(freeCells, currPlyrsIdx, oppPlyrsIdx, board)  {
 	var blockingMovesIdx = -1; // assume not blocking move is necessary unless one is found
 
-	var currPlyrsPrevMoves = getCurrPlyrsPrevMoves(currPlyrsIdx);
-	var oppPlyrsPrevMoves = getCurrPlyrsPrevMoves(oppPlyrsIdx);
+	var currPlyrsPrevMoves = getCurrPlyrsPrevMoves(currPlyrsIdx, board);
+	var oppPlyrsPrevMoves = getCurrPlyrsPrevMoves(oppPlyrsIdx, board);
 
 	var needToBlockOpponent = determineWhetherOpponentNeedsToBeBlocked(freeCells, currPlyrsPrevMoves, oppPlyrsPrevMoves);
 	if (needToBlockOpponent) {
-		blockingMovesIdx = getBlockingMove()
+		blockingMovesIdx = getCellIdxToBlockOpponent(freeCells, currPlyrsPrevMoves, oppPlyrsPrevMoves);
 	}
+
+	return blockingMovesIdx;
 }
 
 //---------------VARIOUS AGENT AI ALGORITHMS---------------
@@ -267,7 +289,6 @@ Agent.prototype.selectMoveWithRules = function(board) {
 	var blockingMovesIdx;
 	var oppPlyrsIdx = currPlyr == 1 ? 2 : 1;
 	if (freeCells.length <= 5) {
-		// all params in this function call necessary? - ie. board & freeCells
 		blockingMovesIdx = getBlockingMove(freeCells, currPlyrsIdx, oppPlyrsIdx, board);
 	}
 	if (blockingMovesIdx != -1) {
