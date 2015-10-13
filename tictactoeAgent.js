@@ -10,7 +10,7 @@
  */ 
 var Agent = function() {
 	
-}
+};
 
 //---------------HELPER METHODS---------------
 
@@ -23,7 +23,7 @@ getFreeCells = function(board) {
         if (board.cellFree(i)) freeCells.push(i);
     }
     return freeCells;
-} 
+};
 
 /*
  * Helper method - determines which player's turn it is currently.
@@ -39,7 +39,7 @@ getCurrPlyr = function(board) {
 		currPlyrsIdx = 1; // X's turn'
 	}
 	return currPlyrsIdx;
-}
+};
 
 /*
  * Helper method - returns the current player's list of moves as an array of integers.
@@ -53,7 +53,7 @@ getCurrPlyrsPrevMoves = function(currPlyr, board) {
 	}
 
 	return currPlyrsPrevMoves;
-}
+};
 
 /*
  * Helper method - returns true if given move choice creates a threeInARow.
@@ -71,19 +71,17 @@ determineWhetherMoveWinsGame = function(currPlyrsPrevMoves, firstCell, secondCel
 		}
 	}
 	return controlsFirstCell && controlsSecondCell;
-} 
+};
 
 /*
  * Helper method - returns true if indvCell (corner cell) is a winning move and false otherwise.
  */
 winningCornerMoveCheck = function(indvCell, currPlyr, board) {
-	var isWinningMove = false;
-
 	var currPlyrsPrevMoves = getCurrPlyrsPrevMoves(currPlyr, board);
 
 	var threeInARowFromCornerMove = false; // assume game's not won yet
 	if (indvCell === 8) { // top left
-		threeInARowFromCornerMove = determineWhetherMoveWinsGame(currPlyrsPrevMoves, 1, 6); // check right
+		threeInARowFromCornerMove = determineWhetherMoveWinsGame(currPlyrsPrevMoves, 1, 6) // check right
 									|| determineWhetherMoveWinsGame(currPlyrsPrevMoves, 3, 4); // check down
 	} else if (indvCell === 6) { // top right
 		threeInARowFromCornerMove = determineWhetherMoveWinsGame(currPlyrsPrevMoves, 1, 8) // check left
@@ -97,20 +95,18 @@ winningCornerMoveCheck = function(indvCell, currPlyr, board) {
 	}
 
 	return threeInARowFromCornerMove;
-}
+};
 
 /*
  * Helper method - returns true if indvCell (side middle) is a winning move and false otherwise.
  */
 winningSideMiddleMoveCheck = function(indvCell, currPlyr, board) {
-	var isWinningMove = false;
-
 	var currPlyrsPrevMoves = getCurrPlyrsPrevMoves(currPlyr, board);
 
 	var threeInARowFromMiddleMove = false; // assume game's not won yet
 
 	if (indvCell === 1) { // top center
-		threeInARowFromMiddleMove = determineWhetherMoveWinsGame(currPlyrsPrevMoves, 8, 6); // check horizontal
+		threeInARowFromMiddleMove = determineWhetherMoveWinsGame(currPlyrsPrevMoves, 8, 6) // check horizontal
 									|| determineWhetherMoveWinsGame(currPlyrsPrevMoves, 5, 9); // check vertical
 	} else if (indvCell === 7) { // right center
 		threeInARowFromMiddleMove = determineWhetherMoveWinsGame(currPlyrsPrevMoves, 3, 5) // check horizontal
@@ -124,21 +120,19 @@ winningSideMiddleMoveCheck = function(indvCell, currPlyr, board) {
 	}
 
 	return threeInARowFromMiddleMove;
-} 
+};
 
 /*
  * Helper method - returns true if indvCell (center) is a winning move and false otherwise.
  */
 winningCenterMoveCheck = function(indvCell, currPlyr, board) {
-	var isWinningMove = false;
-
 	var currPlyrsPrevMoves = getCurrPlyrsPrevMoves(currPlyr, board);
 
 	return determineWhetherMoveWinsGame(currPlyrsPrevMoves, 1, 9) // checks vertical
 			|| determineWhetherMoveWinsGame(currPlyrsPrevMoves, 3, 7) // checks horizontal
 			|| determineWhetherMoveWinsGame(currPlyrsPrevMoves, 8, 2) // checks top left to bottom right
 			|| determineWhetherMoveWinsGame(currPlyrsPrevMoves, 6, 4); // checks top right to bottom left
-} 
+};
 
 /*
  * Helper method - returns a winning move's index, if possible.
@@ -169,7 +163,7 @@ getWinningMove = function(freeCells, currPlyr, board) {
 		}
 	}
 	return returnedMoveIdx;
-}
+};
 
 /*
  * Helper method - returns true if opposing player has a twoInARow that needs blocking and false otherwise.
@@ -180,15 +174,15 @@ determineWhetherOpponentNeedsToBeBlocked = function(currPlyrsPrevMoves, oppPlyrs
 	for (var i = 0; i < twoInARowsNeededToBeBlockedArr.length; i++) {
 		var currTwoInARow = twoInARowsNeededToBeBlockedArr[i];
 
-		if (currPlyrsPrevMoves.includes(currTwoInARow[0])
-				&& currPlyrsPrevMoves.includes(currTwoInARow[1])) {
+		if (currPlyrsPrevMoves.indexOf(currTwoInARow[0] !== -1)
+				&& currPlyrsPrevMoves.indexOf(currTwoInARow[1]) !== -1) {
 			oppNeedsToBeBlocked = true;
 			break;
 		}
 	}
 
 	return oppNeedsToBeBlocked;
-} 
+};
 
 /*
  * Helper method - returns the cell index of a random cell from freeCells
@@ -196,15 +190,15 @@ determineWhetherOpponentNeedsToBeBlocked = function(currPlyrsPrevMoves, oppPlyrs
 randomlyGeneratedValidFreeCellIdx = function(freeCells, currPlyrsPrevMoves, oppPlyrsPrevMoves) {
  	var returnedCellIdx = -1;
 
- 	while (returnedCellIdx === -1 || currPlyrsPrevMoves.includes(returnedCellIdx) 
- 			|| oppPlyrsPrevMoves.includes(returnedCellIdx)) {
- 		if (freeCells.includes(returnedCellIdx)) {
+ 	while (returnedCellIdx === -1 || currPlyrsPrevMoves.indexOf(returnedCellIdx) !== -1
+ 			|| oppPlyrsPrevMoves.indexOf(returnedCellIdx) !== -1) {
+ 		if (freeCells.indexOf(returnedCellIdx) !== -1) {
  			returnedCellIdx = Math.ceil(Math.random() * freeCells.length);
  		}
  	}
 
  	return returnedCellIdx;
- }
+};
 
 /*
  * Helper method - returns the cell index that the current player needs to fill in order to block their opponent.
@@ -218,13 +212,13 @@ getCellIdxToBlockOpponent = function(freeCells, currPlyrsPrevMoves, oppPlyrsPrev
 
 	for (var i = 0; i < twoInARowsNeededToBeBlockedArr.length; i++) {
 		var currTwoInARow = twoInARowsNeededToBeBlockedArr[i];
-		if (oppPlyrsPrevMoves.includes(currTwoInARow[0]) && oppPlyrsPrevMoves.includes(currTwoInARow[1]) {
+		if (oppPlyrsPrevMoves.indexOf(currTwoInARow[0]) !== -1 && oppPlyrsPrevMoves.indexOf(currTwoInARow[1]) !== -1) {
 			blockingMovesIdx = allBlockingMoveOptions[i];
 		}
 	}
 
 	return blockingMovesIdx;
-} 
+};
 
 /*
  * Helper method - returns a blocking move's index, if necessary (meaning opponent has a twoInARow).
@@ -237,7 +231,7 @@ getBlockingMove = function(freeCells, currPlyrsIdx, oppPlyrsIdx, board)  {
 	var oppPlyrsPrevMoves = getCurrPlyrsPrevMoves(oppPlyrsIdx, board);
 
 	var twoInARowsNeededToBeBlockedArr = [[8,3], [1,5], [6,7], [4,3],[5,9],[7,2], // all vertical twoInARows
-										[8,1], [1,6], [3,5], [5,7], [4,9], [9,2]; // all horiz twoInARows
+										[8,1], [1,6], [3,5], [5,7], [4,9], [9,2]]; // all horiz twoInARows
 
 	var needToBlockOpponent = determineWhetherOpponentNeedsToBeBlocked(currPlyrsPrevMoves, oppPlyrsPrevMoves,
 								twoInARowsNeededToBeBlockedArr);
@@ -248,7 +242,7 @@ getBlockingMove = function(freeCells, currPlyrsIdx, oppPlyrsIdx, board)  {
 	}
 
 	return blockingMovesIdx;
-}
+};
 
 //---------------VARIOUS AGENT AI ALGORITHMS---------------
 
@@ -260,7 +254,7 @@ Agent.prototype.selectMove = function(board) {
 
 	// Step 2: Determine which player's turn it is
 	var currPlyr = getCurrPlyr(board);
-}
+};
 
 /* 
  * Original provided solution.
@@ -269,7 +263,7 @@ Agent.prototype.selectMove = function(board) {
 Agent.prototype.selectMoveAtRandom = function(board) {
 	var freeCells = getFreeCells(board);
     return freeCells[Math.floor(Math.random() * freeCells.length)];
-}
+};
 
 /*
  * Algorithm based on TicTacToe rules discussed in class and from the TicTacToe Wikipedia article.
@@ -282,7 +276,7 @@ Agent.prototype.selectMoveWithRules = function(board) {
 	var freeCells = getFreeCells(board);
 
 	// determine which player's turn it is
-	var currPlyr = getCurrPlyr(board);
+	var currPlyrsIdx = getCurrPlyr(board);
 
 	// START OF RULE-BASED ALGORITHM!
 
@@ -294,7 +288,7 @@ Agent.prototype.selectMoveWithRules = function(board) {
 	// Rule 1 - Win, if possible.
 	var winningMovesIdx;
 	if (freeCells.length <= 5) { // then it's possible to have a winning move
-		winningMovesIdx = getWinningMove(freeCells, currPlyr, board);
+		winningMovesIdx = getWinningMove(freeCells, currPlyrsIdx, board);
 	}
 	if (winningMovesIdx != -1) {
 		optimalMovesIdx = winningMovesIdx;
@@ -302,15 +296,15 @@ Agent.prototype.selectMoveWithRules = function(board) {
 
 	// Rule 2 - Block opponent if they have a twoInARow.
 	var blockingMovesIdx;
-	var oppPlyrsIdx = currPlyr == 1 ? 2 : 1;
+	var oppPlyrsIdx = currPlyrsIdx === 1 ? 2 : 1;
 	if (freeCells.length <= 5) {
 		blockingMovesIdx = getBlockingMove(freeCells, currPlyrsIdx, oppPlyrsIdx, board);
 	}
-	if (blockingMovesIdx != -1) {
+	if (blockingMovesIdx !== -1) {
 		optimalMovesIdx = blockingMovesIdx;
 	}
 
 	// Rule 3 - ...
 
 	return optimalMovesIdx;
-} 
+};
