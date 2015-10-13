@@ -56,21 +56,269 @@ getCurrPlyrsPrevMoves = function(currPlyr, board) {
 };
 
 /*
+ * Helper method - handles sub-rule #2 for p2's (O's) first move.
+ * Returns the cell index for p2's first move depending on p1's first move.
+ */
+getPlyrTwosFirstMove = function(oppPlyrsPrevMoves) {
+    var p2sFirstMove;
+
+    var cornerCellIdxs = [2,4,6,8];
+    var edgeCellIdxs = [1,3,7,9];
+    var p1sFirstMove = oppPlyrsPrevMoves[0];
+
+    // if p1 played a corner cell or edge cell, p2 plays center
+    if (cornerCellIdxs.indexOf(p1sFirstMove) !== -1
+            || edgeCellIdxs.indexOf(p1sFirstMove) !== -1) { // p1 played corner cell or edge cell
+        p2sFirstMove = 5; // p2 plays center
+    // if p1 played center, p2 plays a corner
+    } else { // p1sFirstMove === 5 (p1 played center)
+        p2sFirstMove = (Math.floor(Math.random() * 4) + 1) * 2; // p2 randomly chooses corner
+    }
+
+    return p2sFirstMove;
+};
+
+/*
+ * Helper method - if p2 chose the center cell as their first move, this returns a
+ * cell index for p1's second move given either a corner or edge first move for p1.
+ */
+givenPTwoCenterGetP1SecondMove = function(cornerCellIdxs, p1sFirstMove) {
+    var p1sSecondMove;
+
+    if (cornerCellIdxs.indexOf(p1sFirstMove) !== -1) { // p1 chose a corner cell first
+        if (p1sFirstMove === 2) {
+            p1sSecondMove = 8;
+        } else if (p1sFirstMove === 4) {
+            p1sSecondMove = 6;
+        } else if (p1sFirstMove === 6) {
+            p1sSecondMove = 4;
+        } else { // p1sFirstMove === 8
+            p1sSecondMove = 2;
+        }
+    } else { // edgeCellIdxs.indexOf(p1sFirstMove) !== -1 (p1 chose an edge cell first)
+        var neighborCellChooser = Math.floor(Math.random() * 2) + 1;
+        if (p1sFirstMove === 1) {
+            if (neighborCellChooser === 1) {
+                p1sSecondMove = 8;
+            } else { // neighborCellChooser === 2
+                p1sSecondMove = 6;
+            }
+        } else if (p1sFirstMove === 3) {
+            if (neighborCellChooser === 1) {
+                p1sSecondMove = 8;
+            } else { // neighborCellChooser === 2
+                p1sSecondMove = 4;
+            }
+        } else if (p1sFirstMove === 7) {
+            if (neighborCellChooser === 1) {
+                p1sSecondMove = 6;
+            } else { // neighborCellChooser === 2
+                p1sSecondMove = 2;
+            }
+        } else { // p1sFirstMove === 9
+            if (neighborCellChooser === 1) {
+                p1sSecondMove = 4;
+            } else { // neighborCellChooser === 2
+                p1sSecondMove = 2;
+            }
+        }
+    }
+
+    return p1sSecondMove;
+};
+
+/*
+ * Helper method - if p2 chose an edge cell as their first move, this returns a
+ * cell index for p1's second move given a corner, edge, or center first move for p1.
+ */
+givenPTwoEdgeGetP1SecondMove = function(cornerCellIdxs, p1sFirstMove, p2sFirstMove) {
+    var p1sSecondMove;
+
+    if (cornerCellIdxs.indexOf(p1sFirstMove) !== -1) { // if p1 chose a corner cell first
+        // p1 should choose the corner cell on the opposing side to their first move
+        if (p1sFirstMove === 2) {
+            p1sSecondMove = 8;
+        } else if (p1sFirstMove === 4) {
+            p1sSecondMove = 6;
+        } else if (p1sFirstMove === 6) {
+            p1sSecondMove = 4;
+        } else { // p1sFirstMove === 8
+            p1sSecondMove = 2;
+        }
+    } else if (p1sFirstMove === 5) { // if p1 chose the center cell first
+        // p1 should choose a corner cell for their second move
+        // but, which corner(s) they choose depends on which edge cell p2 chose first
+        var opposingCornerChooser = Math.floor(Math.random() * 2) + 1;
+        if (p2sFirstMove === 1) {
+            if (opposingCornerChooser === 1) {
+                p1sSecondMove = 4;
+            } else { // opposingCornerChooser === 2
+                p1sSecondMove = 2;
+            }
+        } else if (p2sFirstMove === 3) {
+            if (opposingCornerChooser === 1) {
+                p1sSecondMove = 6;
+            } else { // opposingCornerChooser === 2
+                p1sSecondMove = 2;
+            }
+        } else if (p2sFirstMove === 7) {
+            if (opposingCornerChooser === 1) {
+                p1sSecondMove = 8;
+            } else { // opposingCornerChooser === 2
+                p1sSecondMove = 4;
+            }
+        } else { // p2sFirstMove === 9
+            if (opposingCornerChooser === 1) {
+                p1sSecondMove = 8;
+            } else { // opposingCornerChooser === 2
+                p1sSecondMove = 6;
+            }
+        }
+    } else { // edgeCellIdxs.indexOf(p1sFirstMove) !== -1 (if p1 chose an edge cell first)
+        var edgeMovesAcrossFromEachOther = (p1sFirstMove === 3 && p2sFirstMove === 7)
+                || (p1sFirstMove === 7 && p2sFirstMove === 3) || (p1sFirstMove === 1 && p2sFirstMove === 9)
+                || (p1sFirstMove === 9 && p2sFirstMove === 1);
+
+        if (edgeMovesAcrossFromEachOther) {
+            var neighborCellChooser = Math.floor(Math.random() * 2) + 1;
+            if (p1sFirstMove === 1) {
+                if (neighborCellChooser === 1) {
+                    p1sSecondMove = 8;
+                } else { // neighborCellChooser === 2
+                    p1sSecondMove = 6;
+                }
+            } else if (p1sFirstMove === 3) {
+                if (neighborCellChooser === 1) {
+                    p1sSecondMove = 8;
+                } else { // neighborCellChooser === 2
+                    p1sSecondMove = 4;
+                }
+            } else if (p1sFirstMove === 7) {
+                if (neighborCellChooser === 1) {
+                    p1sSecondMove = 6;
+                } else { // neighborCellChooser === 2
+                    p1sSecondMove = 2;
+                }
+            } else { // p1sFirstMove === 9
+                if (neighborCellChooser === 1) {
+                    p1sSecondMove = 4;
+                } else { // neighborCellChooser === 2
+                    p1sSecondMove = 2;
+                }
+            }
+        } else { // p1 and p2's edge moves are not across from one another
+            p1sSecondMove = 5; // choose center
+        }
+    }
+
+    return p1sSecondMove;
+};
+
+/*
+ * Helper method - if p2 chose a corner cell as their first move, this returns a
+ * cell index for p1's second move given a center, corner, or edge first move for p1.
+ */
+givenPTwoCornerGetP1SecondMove = function(edgeCellIdxs, p1sFirstMove, p2sFirstMove) {
+    var p1sSecondMove;
+
+    if (edgeCellIdxs.indexOf(p1sFirstMove) !== -1) { // if p1's first move was an edge cell
+        // whether p1 and p2's first moves are on the same side of the board or not, by choosing
+        // the center cell, p1 both blocks p2 and creates a twoInARow
+        p1sSecondMove = 5;
+    } else if (p1sFirstMove === 5) { // if p1's first move was the center cell
+        var cornerCellChooser = Math.floor(Math.random() * 2) + 1;
+        if (p2sFirstMove === 4) {
+            if (cornerCellChooser === 1) {
+                p1sSecondMove = 8;
+            } else { // cornerCellChooser === 2
+                p1sSecondMove = 2;
+            }
+        } else if (p2sFirstMove === 8) {
+            if (cornerCellChooser === 1) {
+                p1sSecondMove = 4;
+            } else { // cornerCellChooser === 2
+                p1sSecondMove = 6;
+            }
+        } else if (p2sFirstMove === 6) {
+            if (cornerCellChooser === 1) {
+                p1sSecondMove = 8;
+            } else { // cornerCellChooser === 2
+                p1sSecondMove = 2;
+            }
+        } else { // p2sFirstMove === 2
+            if (cornerCellChooser === 1) {
+                p1sSecondMove = 4;
+            } else { // cornerCellChooser === 2
+                p1sSecondMove = 6;
+            }
+        }
+    } else { // if p1's first move was a corner cell
+        var firstMovesAreOppositeCorners = (p1sFirstMove === 4 && p2sFirstMove === 6)
+                || (p1sFirstMove === 6 && p2sFirstMove === 4) || (p1sFirstMove === 8 && p2sFirstMove === 2)
+                || (p1sFirstMove === 2 && p2sFirstMove === 8);
+
+        if (firstMovesAreOppositeCorners) { // then p1 should pick any other corner for their second move
+            var cornerCellChooser = Math.floor(Math.random() * 2) + 1;
+            if (p1sFirstMove === 4 || p1sFirstMove === 6) {
+                if (cornerCellChooser === 1) {
+                    p1sSecondMove = 8;
+                } else { // cornerCellChooser === 2
+                    p1sSecondMove = 2;
+                }
+            } else { // (p1sFirstMove === 8 || p1sFirstMove === 2)
+                if (cornerCellChooser === 1) {
+                    p1sSecondMove = 4;
+                } else { // cornerCellChooser === 2
+                    p1sSecondMove = 6;
+                }
+            }
+        } else { // then p1 must pick the opposite corner to p2's first move
+            if (p2sFirstMove === 4) {
+                p1sSecondMove = 6;
+            } else if (p2sFirstMove === 8) {
+                p1sSecondMove = 2;
+            } else if (p2sFirstMove === 6) {
+                p1sSecondMove = 4;
+            } else { // p2sFirstMove === 2
+                p1sSecondMove = 8;
+            }
+        }
+    }
+
+    return p1sSecondMove;
+};
+
+/*
+ * Helper method - returns the cell index for p2's second move, given the first moves of
+ * p1 and p2.
+ */
+getPlyrOnesSecondMove = function(p1sFirstMove, p2sFirstMove) {
+    var p1sSecondMove;
+
+    var cornerCellIdxs = [2,4,6,8];
+    var edgeCellIdxs = [1,3,7,9];
+
+    if (p2sFirstMove === 5) { // if p2 chose a center cell first
+        p1sSecondMove = givenPTwoCenterGetP1SecondMove(cornerCellIdxs, p1sFirstMove);
+    } else if (edgeCellIdxs.indexOf(p2sFirstMove) !== -1) { // if p2 chose an edge cell first
+        p1sSecondMove = givenPTwoEdgeGetP1SecondMove(cornerCellIdxs, p1sFirstMove, p2sFirstMove);
+    } else { // cornerCellIdxs.indexOf(p2sFirstMove) !== -1 (if p2 chose a corner cell first)
+        p1sSecondMove = givenPTwoCornerGetP1SecondMove(edgeCellIdxs, p1sFirstMove, p2sFirstMove);
+    }
+
+    return p1sSecondMove;
+};
+
+/*
  * Helper method - Depending on currPlyr, it returns the index of an initial move
  * for p1 or p2 (assuming some basic strategy tenets from the TicTacToe Wikipedia article).
  */
 getAnInitialMove = function(freeCells, currPlyr, board) {
     var initialMovesIdx;
 
-    var oppPlyr;
-    var currPlyrsPrevMoves = getCurrPlyrsPrevMoves(currPlyr, board);;
-    if (currPlyr === 1) {
-        oppPlyr = 2;
-    } else { // currPlyr === 2
-        oppPlyr = 1;
-    }
+    var currPlyrsPrevMoves = getCurrPlyrsPrevMoves(currPlyr, board);
+    var oppPlyr = currPlyrsIdx === 1 ? 2 : 1;
     var oppPlyrsPrevMoves = getCurrPlyrsPrevMoves(oppPlyr, board);
-
 
     // Sub-rule 1: playing the corner gives the opponent the smallest choice of squares which
     // must be played to avoid losing
@@ -79,26 +327,13 @@ getAnInitialMove = function(freeCells, currPlyr, board) {
         initialMovesIdx = (Math.floor(Math.random() * 4) + 1) * 2;
     // Sub-rule 2: O's opening mark must be played in such a way as to avoid the forced win by X
     } else if (freeCells.length === 8) {
-        // see wiki article for subtleties ...
-        initialMovesIdx = 5;
+        initialMovesIdx = getPlyrTwosFirstMove(oppPlyrsPrevMoves);
+    // Sule-rule 3: X's second move (if their first move was a corner cell) should be the opposing
+    // corner cell on the board. All other combinations of p1 and p2's first moves are accounted for.
     } else { // freeCells.length === 7
-        // ...
-    }
-
-    if (p1Moves.length <= 2 || p2Moves.length <= 2) {
-        if (currPlyr === 2 && p1Moves.indexOf(5) < 0) {
-            return 5;
-        } else {
-            if (randCorner === 1 && freeCells.indexOf(8) >= 0) {
-                return 8;
-            } else if (randCorner === 2 && freeCells.indexOf(6) >= 0) {
-                return 6;
-            } else if (randCorner === 3 && freeCells.indexOf(4) >= 0) {
-                return 4;
-            } else {
-                return 2;
-            }
-        }
+        var p1sFirstMove = currPlyrsPrevMoves[0];
+        var p2sFirstMove = oppPlyrsPrevMoves[0];
+        initialMovesIdx = getPlyrOnesSecondMove(p1sFirstMove, p2sFirstMove);
     }
 
     return initialMovesIdx;
@@ -382,9 +617,8 @@ Agent.prototype.selectMoveWithRules = function(board) {
 	// START OF RULE-BASED ALGORITHM!
 
 	// Rule 0 - handle edge cases (moves 1 - 3)
-    var initialMovesIdx;
     if (freeCells.length > 6) { // first 3 moves are 'edge cases'
-
+        optimalMovesIdx = getAnInitialMove(freeCells, currPlyrsIdx, board);
     }
 
 	// Rule 1 - Win, if possible.
