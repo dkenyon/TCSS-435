@@ -17,7 +17,7 @@ var Agent = function() {
 /*
  * Helper method - returns all free cells on gameboard.
  */
-var getFreeCells = function(board) {
+getFreeCells = function(board) {
 	var freeCells = [];
     for (var i = 1; i < 10; i++) {
         if (board.cellFree(i)) freeCells.push(i);
@@ -29,7 +29,7 @@ var getFreeCells = function(board) {
  * Helper method - determines which player's turn it is currently.
  * Returns a 1 for P1 (Xs) and a 2 for P2 (Os).
  */
-var getCurrPlyr = function(board) {
+getCurrPlyr = function(board) {
 	var p1Moves = board.X; // remember! - X's always go first
 	var p2Moves = board.O;
 	var currPlyrsIdx = -1; // initial invalid value (for error handling)
@@ -44,7 +44,7 @@ var getCurrPlyr = function(board) {
 /*
  * Helper method - returns the current player's list of moves as an array of integers.
  */
-var getCurrPlyrsPrevMoves = function(currPlyr, board) {
+getCurrPlyrsPrevMoves = function(currPlyr, board) {
 	var currPlyrsPrevMoves = [];
 	if (currPlyr === 1) { // X's move
 		currPlyrsPrevMoves = board.X;
@@ -59,7 +59,7 @@ var getCurrPlyrsPrevMoves = function(currPlyr, board) {
  * Helper method - returns true if given move choice creates a threeInARow.
  * Returns false otherwise.
  */
-var determineWhetherMoveWinsGame = function(currPlyrsPrevMoves, firstCell, secondCell) {
+determineWhetherMoveWinsGame = function(currPlyrsPrevMoves, firstCell, secondCell) {
 	var controlsFirstCell= false;
 	var controlsSecondCell = false; 
 	for (var i = 0; i < currPlyrsPrevMoves.length; i++) {
@@ -76,7 +76,7 @@ var determineWhetherMoveWinsGame = function(currPlyrsPrevMoves, firstCell, secon
 /*
  * Helper method - returns true if indvCell (corner cell) is a winning move and false otherwise.
  */
-var winningCornerMoveCheck = function(indvCell, currPlyr, board) {
+winningCornerMoveCheck = function(indvCell, currPlyr, board) {
 	var isWinningMove = false;
 
 	var currPlyrsPrevMoves = getCurrPlyrsPrevMoves(currPlyr, board);
@@ -102,7 +102,7 @@ var winningCornerMoveCheck = function(indvCell, currPlyr, board) {
 /*
  * Helper method - returns true if indvCell (side middle) is a winning move and false otherwise.
  */
-var winningSideMiddleMoveCheck = function(indvCell, currPlyr, board) {
+winningSideMiddleMoveCheck = function(indvCell, currPlyr, board) {
 	var isWinningMove = false;
 
 	var currPlyrsPrevMoves = getCurrPlyrsPrevMoves(currPlyr, board);
@@ -129,7 +129,7 @@ var winningSideMiddleMoveCheck = function(indvCell, currPlyr, board) {
 /*
  * Helper method - returns true if indvCell (center) is a winning move and false otherwise.
  */
-var winningCenterMoveCheck = function(indvCell, currPlyr, board) {
+winningCenterMoveCheck = function(indvCell, currPlyr, board) {
 	var isWinningMove = false;
 
 	var currPlyrsPrevMoves = getCurrPlyrsPrevMoves(currPlyr, board);
@@ -144,7 +144,7 @@ var winningCenterMoveCheck = function(indvCell, currPlyr, board) {
  * Helper method - returns a winning move's index, if possible.
  * Otherwise, if winning isn't an option, it returns -1.
  */
-var getWinningMove = function(freeCells, currPlyr, board) {
+getWinningMove = function(freeCells, currPlyr, board) {
 	var returnedMoveIdx = -1; // assume you can't win unless a move is found
 	for (var i = 0; i < freeCells.length; i++) {
 		var indvCell = freeCells[i];
@@ -174,11 +174,8 @@ var getWinningMove = function(freeCells, currPlyr, board) {
 /*
  * Helper method - returns true if opposing player has a twoInARow that needs blocking and false otherwise.
  */
-var determineWhetherOpponentNeedsToBeBlocked = function(currPlyrsPrevMoves, oppPlyrsPrevMoves) {
+determineWhetherOpponentNeedsToBeBlocked = function(currPlyrsPrevMoves, oppPlyrsPrevMoves, twoInARowsNeededToBeBlockedArr) {
 	var oppNeedsToBeBlocked = false; // assume that currPlyr doesn't need to block opponent unless necessary
-
-	var twoInARowsNeededToBeBlockedArr = [[8,3], [1,5], [6,7], [4,3],[5,9],[7,2], // checking all vertical twoInARows
-										[8,1], [1,6], [3,5], [5,7], [4,9], [9,2]; // checking all horiz twoInARows
 
 	for (var i = 0; i < twoInARowsNeededToBeBlockedArr.length; i++) {
 		var currTwoInARow = twoInARowsNeededToBeBlockedArr[i];
@@ -196,12 +193,14 @@ var determineWhetherOpponentNeedsToBeBlocked = function(currPlyrsPrevMoves, oppP
 /*
  * Helper method - returns the cell index of a random cell from freeCells
  */
- var randomlyGeneratedValidFreeCellIdx = function(freeCells, currPlyrsPrevMoves, oppPlyrsPrevMoves) {
+randomlyGeneratedValidFreeCellIdx = function(freeCells, currPlyrsPrevMoves, oppPlyrsPrevMoves) {
  	var returnedCellIdx = -1;
 
  	while (returnedCellIdx === -1 || currPlyrsPrevMoves.includes(returnedCellIdx) 
  			|| oppPlyrsPrevMoves.includes(returnedCellIdx)) {
- 		returnedCellIdx = Math.ceil(Math.random() * freeCells.length);
+ 		if (freeCells.includes(returnedCellIdx)) {
+ 			returnedCellIdx = Math.ceil(Math.random() * freeCells.length);
+ 		}
  	}
 
  	return returnedCellIdx;
@@ -210,26 +209,42 @@ var determineWhetherOpponentNeedsToBeBlocked = function(currPlyrsPrevMoves, oppP
 /*
  * Helper method - returns the cell index that the current player needs to fill in order to block their opponent.
  */
-var getCellIdxToBlockOpponent = function(freeCells, currPlyrsPrevMoves, oppPlyrsPrevMoves) {
+getCellIdxToBlockOpponent = function(freeCells, currPlyrsPrevMoves, oppPlyrsPrevMoves, twoInARowsNeededToBeBlockedArr) {
 	// start with a VALID random cell idx from freeCells
 	var blockingMovesIdx = randomlyGeneratedValidFreeCellIdx(freeCells, currPlyrsPrevMoves, oppPlyrsPrevMoves);
 
-	// do more stuff
+	// indexes of these moves correspond with indexes of twoInARowsNeededToBeBlockedArr
+	var allBlockingMoveOptions = [4, 9, 2, 8, 1, 6, 6, 8, 7, 3, 2, 4];
+
+	for (var i = 0; i < twoInARowsNeededToBeBlockedArr.length; i++) {
+		var currTwoInARow = twoInARowsNeededToBeBlockedArr[i];
+		if (oppPlyrsPrevMoves.includes(currTwoInARow[0]) && oppPlyrsPrevMoves.includes(currTwoInARow[1]) {
+			blockingMovesIdx = allBlockingMoveOptions[i];
+		}
+	}
+
+	return blockingMovesIdx;
 } 
 
 /*
  * Helper method - returns a blocking move's index, if necessary (meaning opponent has a twoInARow).
  * Otherwise, it returns -1.
  */
-var getBlockingMove = function(freeCells, currPlyrsIdx, oppPlyrsIdx, board)  {
+getBlockingMove = function(freeCells, currPlyrsIdx, oppPlyrsIdx, board)  {
 	var blockingMovesIdx = -1; // assume not blocking move is necessary unless one is found
 
 	var currPlyrsPrevMoves = getCurrPlyrsPrevMoves(currPlyrsIdx, board);
 	var oppPlyrsPrevMoves = getCurrPlyrsPrevMoves(oppPlyrsIdx, board);
 
-	var needToBlockOpponent = determineWhetherOpponentNeedsToBeBlocked(freeCells, currPlyrsPrevMoves, oppPlyrsPrevMoves);
+	var twoInARowsNeededToBeBlockedArr = [[8,3], [1,5], [6,7], [4,3],[5,9],[7,2], // all vertical twoInARows
+										[8,1], [1,6], [3,5], [5,7], [4,9], [9,2]; // all horiz twoInARows
+
+	var needToBlockOpponent = determineWhetherOpponentNeedsToBeBlocked(currPlyrsPrevMoves, oppPlyrsPrevMoves,
+								twoInARowsNeededToBeBlockedArr);
+
 	if (needToBlockOpponent) {
-		blockingMovesIdx = getCellIdxToBlockOpponent(freeCells, currPlyrsPrevMoves, oppPlyrsPrevMoves);
+		blockingMovesIdx = getCellIdxToBlockOpponent(freeCells, currPlyrsPrevMoves, oppPlyrsPrevMoves,
+								twoInARowsNeededToBeBlockedArr);
 	}
 
 	return blockingMovesIdx;
