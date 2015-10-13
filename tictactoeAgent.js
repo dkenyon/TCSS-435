@@ -56,6 +56,55 @@ getCurrPlyrsPrevMoves = function(currPlyr, board) {
 };
 
 /*
+ * Helper method - Depending on currPlyr, it returns the index of an initial move
+ * for p1 or p2 (assuming some basic strategy tenets from the TicTacToe Wikipedia article).
+ */
+getAnInitialMove = function(freeCells, currPlyr, board) {
+    var initialMovesIdx;
+
+    var oppPlyr;
+    var currPlyrsPrevMoves = getCurrPlyrsPrevMoves(currPlyr, board);;
+    if (currPlyr === 1) {
+        oppPlyr = 2;
+    } else { // currPlyr === 2
+        oppPlyr = 1;
+    }
+    var oppPlyrsPrevMoves = getCurrPlyrsPrevMoves(oppPlyr, board);
+
+
+    // Sub-rule 1: playing the corner gives the opponent the smallest choice of squares which
+    // must be played to avoid losing
+    if (freeCells.length === 9) { // no more has yet been made, p1's turn
+        // random number between 1 and 4 (turned into a corner cell's index)
+        initialMovesIdx = (Math.floor(Math.random() * 4) + 1) * 2;
+    // Sub-rule 2: O's opening mark must be played in such a way as to avoid the forced win by X
+    } else if (freeCells.length === 8) {
+        // see wiki article for subtleties ...
+        initialMovesIdx = 5;
+    } else { // freeCells.length === 7
+        // ...
+    }
+
+    if (p1Moves.length <= 2 || p2Moves.length <= 2) {
+        if (currPlyr === 2 && p1Moves.indexOf(5) < 0) {
+            return 5;
+        } else {
+            if (randCorner === 1 && freeCells.indexOf(8) >= 0) {
+                return 8;
+            } else if (randCorner === 2 && freeCells.indexOf(6) >= 0) {
+                return 6;
+            } else if (randCorner === 3 && freeCells.indexOf(4) >= 0) {
+                return 4;
+            } else {
+                return 2;
+            }
+        }
+    }
+
+    return initialMovesIdx;
+};
+
+/*
  * Helper method - returns true if given move choice creates a threeInARow.
  * Returns false otherwise.
  */
@@ -168,7 +217,8 @@ getWinningMove = function(freeCells, currPlyr, board) {
 /*
  * Helper method - returns true if opposing player has a twoInARow that needs blocking and false otherwise.
  */
-determineWhetherOpponentNeedsToBeBlocked = function(currPlyrsPrevMoves, oppPlyrsPrevMoves, twoInARowsNeededToBeBlockedArr) {
+determineWhetherOpponentNeedsToBeBlocked = function(currPlyrsPrevMoves, oppPlyrsPrevMoves,
+                                                    twoInARowsNeededToBeBlockedArr) {
 	var oppNeedsToBeBlocked = false; // assume that currPlyr doesn't need to block opponent unless necessary
 
 	for (var i = 0; i < twoInARowsNeededToBeBlockedArr.length; i++) {
@@ -187,7 +237,8 @@ determineWhetherOpponentNeedsToBeBlocked = function(currPlyrsPrevMoves, oppPlyrs
 /*
  * Helper method - returns the cell index that the current player needs to fill in order to block their opponent.
  */
-getCellIdxToBlockOpponent = function(freeCells, currPlyrsPrevMoves, oppPlyrsPrevMoves, twoInARowsNeededToBeBlockedArr) {
+getCellIdxToBlockOpponent = function(freeCells, currPlyrsPrevMoves, oppPlyrsPrevMoves,
+                                     twoInARowsNeededToBeBlockedArr) {
 	var blockingMovesIdx;
 
 	// indexes of these moves correspond with indexes of twoInARowsNeededToBeBlockedArr
@@ -330,8 +381,11 @@ Agent.prototype.selectMoveWithRules = function(board) {
 
 	// START OF RULE-BASED ALGORITHM!
 
-	// TODO: Rule 0 - handle edge cases (moves 1 - 3), done by Josh
-	// ...
+	// Rule 0 - handle edge cases (moves 1 - 3)
+    var initialMovesIdx;
+    if (freeCells.length > 6) { // first 3 moves are 'edge cases'
+
+    }
 
 	// Rule 1 - Win, if possible.
 	var winningMovesIdx;
