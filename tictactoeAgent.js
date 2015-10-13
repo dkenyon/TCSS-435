@@ -185,27 +185,10 @@ determineWhetherOpponentNeedsToBeBlocked = function(currPlyrsPrevMoves, oppPlyrs
 };
 
 /*
- * Helper method - returns the cell index of a random cell from freeCells
- */
-randomlyGeneratedValidFreeCellIdx = function(freeCells, currPlyrsPrevMoves, oppPlyrsPrevMoves) {
- 	var returnedCellIdx = -1;
-
- 	while (returnedCellIdx === -1 || currPlyrsPrevMoves.indexOf(returnedCellIdx) !== -1
- 			|| oppPlyrsPrevMoves.indexOf(returnedCellIdx) !== -1) {
- 		if (freeCells.indexOf(returnedCellIdx) !== -1) {
- 			returnedCellIdx = Math.ceil(Math.random() * freeCells.length);
- 		}
- 	}
-
- 	return returnedCellIdx;
-};
-
-/*
  * Helper method - returns the cell index that the current player needs to fill in order to block their opponent.
  */
 getCellIdxToBlockOpponent = function(freeCells, currPlyrsPrevMoves, oppPlyrsPrevMoves, twoInARowsNeededToBeBlockedArr) {
-	// start with a VALID random cell idx from freeCells
-	var blockingMovesIdx = randomlyGeneratedValidFreeCellIdx(freeCells, currPlyrsPrevMoves, oppPlyrsPrevMoves);
+	var blockingMovesIdx;
 
 	// indexes of these moves correspond with indexes of twoInARowsNeededToBeBlockedArr
 	var allBlockingMoveOptions = [4, 9, 2, 8, 1, 6, 6, 8, 7, 3, 2, 4];
@@ -244,6 +227,73 @@ getBlockingMove = function(freeCells, currPlyrsIdx, oppPlyrsIdx, board)  {
 	return blockingMovesIdx;
 };
 
+/*
+ * Helper method - returns true if there exists a move that can create a fork opportunity for the
+ * current player and false otherwise.
+ */
+determineWhetherForkCanBeCreated = function(freeCells, currPlyrsPrevMoves, allPossibleSetupsToCreateAFork) {
+    var forkCanBeCreated = false; // assume that a fork cannot be created unless an opportunity is found
+
+    for (var i = 0; i < allPossibleSetupsToCreateAFork.length; i++) {
+        var currSetup = allPossibleSetupsToCreateAFork[i];
+
+        if (currPlyrsPrevMoves.indexOf(currSetup[0]) !== -1 && currPlyrsPrevMoves.indexOf(currSetup[1]) !== -1) {
+            forkCanBeCreated = true;
+            break;
+        }
+    }
+
+    return forkCanBeCreated;
+};
+
+/*
+ * Helper method - returns a cell index creating a fork opportunity for the current player.
+ */
+getCellIdxThatCreatesAFork = function(freeCells, currPlyrsPrevMoves, allPossibleSetupsToCreateAFork) {
+    var forkingMovesIdx;
+
+    // the indexes of these moves correspond to the indexes in the allPossibleSetupsToCreateAFork array
+    var allForkingMovesOptionPairs = [[8,2],[6,2],[8,6],[4,2],[4,6],[4,8]];
+
+    for (var i = 0; i < allPossibleSetupsToCreateAFork.length; i++) {
+        var currSetup = allPossibleSetupsToCreateAFork[i];
+        if (currPlyrsPrevMoves.indexOf(currSetup[0]) !== -1 && currPlyrsPrevMoves.indexOf(currSetup[1]) !== -1) {
+            var currForkOptionPair = allForkingMovesOptionPairs[i];
+            if (freeCells.indexOf(currForkOptionPair[0]) !== -1) {
+                forkingMovesIdx = currForkOptionPair[0];
+                break;
+            } else if (freeCells.indexOf(currForkOptionPair[1]) !== -1) {
+                forkingMovesIdx = currForkOptionPair[1];
+                break;
+            }
+        }
+    }
+
+    return forkingMovesIdx;
+};
+
+/*
+ * Helper method - returns a forking move's index (meaning setting up 2 potential twoInARows)
+ * and -1 otherwise.
+ */
+getForkingMove=  function(freeCells, currPlyrsIdx, board) {
+    var forkingMovesIdx = -1;
+
+    var currPlyrsPrevMoves = getCurrPlyrsPrevMoves(currPlyrsIdx, board);
+
+    var allPossibleSetupsToCreateAFork = [[4,6],[4,8],[4,2],[8,6],[8,2],[6,2]];
+
+    var possibleToCreateAFork = determineWhetherForkCanBeCreated(freeCells, currPlyrsPrevMoves,
+                                    allPossibleSetupsToCreateAFork);
+
+    if (possibleToCreateAFork) {
+        forkingMovesIdx = getCellIdxThatCreatesAFork(freeCells, currPlyrsPrevMoves,
+                            allPossibleSetupsToCreateAFork);
+    }
+
+    return forkingMovesIdx;
+};
+
 //---------------VARIOUS AGENT AI ALGORITHMS---------------
 
 // OUR BEST SOLUTION...LEAVE BLANK UNTIL ALL OPTIONS HAVE BEEN CONSIDERED
@@ -275,19 +325,17 @@ Agent.prototype.selectMoveWithRules = function(board) {
 	// get all free cells on gameboard
 	var freeCells = getFreeCells(board);
 
-	// determine which player's turn it is
+	// determine which player's turn it is and which player is the opponent
 	var currPlyrsIdx = getCurrPlyr(board);
 
 	// START OF RULE-BASED ALGORITHM!
 
-	// TODO: ***still need to handle edge cases (ie. 1st, 2nd, 3rd, & 4th moves)***
-
-	// Rule 0 - handle edge cases
+	// TODO: Rule 0 - handle edge cases (moves 1 - 3), done by Josh
 	// ...
 
 	// Rule 1 - Win, if possible.
 	var winningMovesIdx;
-	if (freeCells.length <= 5) { // then it's possible to have a winning move
+	if (freeCells.length <= 5) { // then it's possible for p1 to have a winning move
 		winningMovesIdx = getWinningMove(freeCells, currPlyrsIdx, board);
 	}
 	if (winningMovesIdx != -1) {
@@ -296,15 +344,24 @@ Agent.prototype.selectMoveWithRules = function(board) {
 
 	// Rule 2 - Block opponent if they have a twoInARow.
 	var blockingMovesIdx;
-	var oppPlyrsIdx = currPlyrsIdx === 1 ? 2 : 1;
-	if (freeCells.length <= 5) {
+    var oppPlyrsIdx = currPlyrsIdx === 1 ? 2 : 1;
+	if (freeCells.length <= 6) { // then it's possible for p2 to have a blocking move
 		blockingMovesIdx = getBlockingMove(freeCells, currPlyrsIdx, oppPlyrsIdx, board);
 	}
 	if (blockingMovesIdx !== -1) {
 		optimalMovesIdx = blockingMovesIdx;
 	}
 
-	// Rule 3 - ...
+	// Rule 3 - Create a fork when possible
+	var forkingMovesIdx;
+    if (freeCells.length <= 5) { // then it's possible for p1 to have a forking move
+        forkingMovesIdx = getForkingMove(freeCells, currPlyrsIdx, board);
+    }
+    if (forkingMovesIdx !== -1) {
+        optimalMovesIdx = forkingMovesIdx;
+    }
+
+    // TODO: Rule 4 - ...
 
 	return optimalMovesIdx;
 };
