@@ -221,12 +221,12 @@ givenPTwoEdgeGetP1SecondMove = function(cornerCellIdxs, p1sFirstMove, p2sFirstMo
 givenPTwoCornerGetP1SecondMove = function(edgeCellIdxs, p1sFirstMove, p2sFirstMove) {
     var p1sSecondMove;
 
+    var cornerCellChooser = Math.floor(Math.random() * 2) + 1;
     if (edgeCellIdxs.indexOf(p1sFirstMove) !== -1) { // if p1's first move was an edge cell
         // whether p1 and p2's first moves are on the same side of the board or not, by choosing
         // the center cell, p1 both blocks p2 and creates a twoInARow
         p1sSecondMove = 5;
     } else if (p1sFirstMove === 5) { // if p1's first move was the center cell
-        var cornerCellChooser = Math.floor(Math.random() * 2) + 1;
         if (p2sFirstMove === 4) {
             if (cornerCellChooser === 1) {
                 p1sSecondMove = 8;
@@ -258,7 +258,6 @@ givenPTwoCornerGetP1SecondMove = function(edgeCellIdxs, p1sFirstMove, p2sFirstMo
                 || (p1sFirstMove === 2 && p2sFirstMove === 8);
 
         if (firstMovesAreOppositeCorners) { // then p1 should pick any other corner for their second move
-            var cornerCellChooser = Math.floor(Math.random() * 2) + 1;
             if (p1sFirstMove === 4 || p1sFirstMove === 6) {
                 if (cornerCellChooser === 1) {
                     p1sSecondMove = 8;
@@ -317,7 +316,7 @@ getAnInitialMove = function(freeCells, currPlyr, board) {
     var initialMovesIdx;
 
     var currPlyrsPrevMoves = getCurrPlyrsPrevMoves(currPlyr, board);
-    var oppPlyr = currPlyrsIdx === 1 ? 2 : 1;
+    var oppPlyr = currPlyr === 1 ? 2 : 1;
     var oppPlyrsPrevMoves = getCurrPlyrsPrevMoves(oppPlyr, board);
 
     // Sub-rule 1: playing the corner gives the opponent the smallest choice of squares which
@@ -477,7 +476,7 @@ getCellIdxToBlockOpponent = function(freeCells, currPlyrsPrevMoves, oppPlyrsPrev
 	var blockingMovesIdx;
 
 	// indexes of these moves correspond with indexes of twoInARowsNeededToBeBlockedArr
-	var allBlockingMoveOptions = [4, 9, 2, 8, 1, 6, 6, 8, 7, 3, 2, 4];
+	var allBlockingMoveOptions = [4, 9, 2, 8, 1, 6, 6, 8, 7, 3, 2, 4, 2, 8, 6, 4];
 
 	for (var i = 0; i < twoInARowsNeededToBeBlockedArr.length; i++) {
 		var currTwoInARow = twoInARowsNeededToBeBlockedArr[i];
@@ -499,8 +498,9 @@ getBlockingMove = function(freeCells, currPlyrsIdx, oppPlyrsIdx, board)  {
 	var currPlyrsPrevMoves = getCurrPlyrsPrevMoves(currPlyrsIdx, board);
 	var oppPlyrsPrevMoves = getCurrPlyrsPrevMoves(oppPlyrsIdx, board);
 
-	var twoInARowsNeededToBeBlockedArr = [[8,3], [1,5], [6,7], [4,3],[5,9],[7,2], // all vertical twoInARows
-										[8,1], [1,6], [3,5], [5,7], [4,9], [9,2]]; // all horiz twoInARows
+	var twoInARowsNeededToBeBlockedArr = [[8,3], [1,5], [6,7], [4,3],[5,9],[7,2],  // all vertical twoInARows
+										[8,1], [1,6], [3,5], [5,7], [4,9], [9,2], // all horiz twoInARows
+                                        [8,5], [5,2], [4,5], [5,6]];                // all diag twoInARows
 
 	var needToBlockOpponent = determineWhetherOpponentNeedsToBeBlocked(currPlyrsPrevMoves, oppPlyrsPrevMoves,
 								twoInARowsNeededToBeBlockedArr);
@@ -580,6 +580,207 @@ getForkingMove=  function(freeCells, currPlyrsIdx, board) {
     return forkingMovesIdx;
 };
 
+/*
+ * Helper method - returns true if a twoInARow can be created and false otherwise.
+ */
+determineWhetherStrategicTwoInARowCanBeCreated = function(freeCells, currPlyrsPrevMoves) {
+    var twoInARowCanBeCreated = false; // assume twoInARow cannot be created unless otherwise shown
+
+    var allStrategicTwoInARows = [[3,5],[1,5],[5,7],[5,9]]; // none of the twoInARows can include a corner cell
+
+    for (var i = 0; i < allStrategicTwoInARows.length; i++) {
+        var currTwoInARow = allStrategicTwoInARows[i];
+
+        // one of the cells in currTwoInARow is free and the other was a previous move of the current player,
+        // meaning that it is possible for the current player to create a twoInARow
+        if ((freeCells.indexOf(currTwoInARow[0]) !== -1 && currPlyrsPrevMoves.indexOf(currTwoInARow[1]) !== -1)
+                || (freeCells.indexOf(currTwoInARow[1]) !== -1 && currPlyrsPrevMoves.indexOf(currTwoInARow[0]) !== -1))
+        {
+            twoInARowCanBeCreated = true;
+            break;
+        }
+    }
+
+    return twoInARowCanBeCreated;
+};
+
+/*
+ * Helper method - return the index of the cell that will create a twoInARow for the current player.
+ */
+getCellIdxCreatingAStrategicTwoInARow = function(freeCells, currPlyrsPrevMoves) {
+    var cellIdxCreatingATwoInARow;
+
+    var allStrategicTwoInARows = [[3,5],[1,5],[5,7],[5,9]]; // none of the twoInARows can include a corner cell
+
+    for (var i = 0; i < allStrategicTwoInARows.length; i++) {
+        var currTwoInARow = allStrategicTwoInARows[i];
+
+        if ((freeCells.indexOf(currTwoInARow[0]) !== -1 && currPlyrsPrevMoves.indexOf(currTwoInARow[1]) !== -1)
+            || (freeCells.indexOf(currTwoInARow[1]) !== -1 && currPlyrsPrevMoves.indexOf(currTwoInARow[0]) !== -1))
+        {
+            if (freeCells.indexOf(currTwoInARow[0]) !== -1) { // first cell in currTwoInARow is free
+                cellIdxCreatingATwoInARow = currTwoInARow[0];
+            } else { // freeCells.indexOf(currTwoInARow[1]) !== -1 (second cell in currTwoInARow is free)
+                cellIdxCreatingATwoInARow = currTwoInARow[1];
+            }
+            break;
+        }
+    }
+
+    return cellIdxCreatingATwoInARow;
+};
+
+/*
+ * Helper method - returns the opponent's specific fork setup (pair of cell indexes).
+ */
+determineOpponentsSpecificForkSetup = function(oppPlyrsPrevMoves, allPossibleSetupsToCreateAFork) {
+    var opponentsForkSetup;
+
+    for (var i = 0; i < allPossibleSetupsToCreateAFork.length; i++) {
+        var currForkSetup = allPossibleSetupsToCreateAFork[i];
+        if (oppPlyrsPrevMoves.indexOf(currForkSetup[0]) !== -1 && oppPlyrsPrevMoves.indexOf(currForkSetup[1]) !== -1) {
+            opponentsForkSetup = currForkSetup;
+            break;
+        }
+    }
+
+    return opponentsForkSetup;
+};
+
+/*
+ * Helper method - returns true if the configuration of the opponentsForkSetup is same side and false otherwise.
+ */
+determineWhetherOpponentsForkIsSameSideConfiguration = function(opponentsForkSetup) {
+    var oppHasSameSideForkSetup = false;
+
+    var allSameSideForkSetups = [[4,8],[4,2],[8,6],[6,2]];
+    for (var i = 0; i < allSameSideForkSetups.length; i++) {
+        var currSameSideForkSetup = allSameSideForkSetups[i];
+        if (opponentsForkSetup.indexOf(currSameSideForkSetup[0]) !== -1
+                && opponentsForkSetup.indexOf(currSameSideForkSetup[1]) !== -1) {
+            oppHasSameSideForkSetup = true;
+            break;
+        }
+    }
+
+    return oppHasSameSideForkSetup;
+};
+
+/*
+ * Helper method - returns the 'most strategic' cell's index to block a potential opponent's fork.
+ */
+determineStrategicForkBlockingCellsIdx = function(oppHasOpposingSideForkSetup, freeCells, opponentsForkSetup) {
+    var strategicForkBlockingCellIdx;
+
+    var centerCellIdx = 5;
+    var edgeCellIdxs = [1,3,7,9];
+    if (oppHasOpposingSideForkSetup) { // general strategy: choose center first, or an edge cell second
+        if (freeCells.indexOf(centerCellIdx) !== -1) { // if center cell is free, pick it!
+            strategicForkBlockingCellIdx = centerCellIdx;
+        } else { // if center cell is occupied, then choose any edge cell
+            for (var i = 0; i < edgeCellIdxs.length; i++) {
+                var currEdgeCell = edgeCellIdxs[i];
+                if (freeCells.indexOf(currEdgeCell) !== -1) { // if currEdgeCell is free, take it!
+                    strategicForkBlockingCellIdx = currEdgeCell;
+                    break;
+                }
+            }
+        }
+    } else { // oppHasSameSideForkSetup = true
+        if (opponentsForkSetup.indexOf(8) !== -1 && opponentsForkSetup.indexOf(4) !== -1) {
+            // first, block potential win (if necessary)
+            if (freeCells.indexOf(3) !== -1) {
+                strategicForkBlockingCellIdx = 3;
+            } else { // second, take center (if possible)
+                strategicForkBlockingCellIdx = 5;
+            }
+        } else if (opponentsForkSetup.indexOf(8) !== -1 && opponentsForkSetup.indexOf(6) !== -1) {
+            // first, block potential win (if necessary)
+            if (freeCells.indexOf(1) !== -1) {
+                strategicForkBlockingCellIdx = 1;
+            } else { // second, take center (if possible)
+                strategicForkBlockingCellIdx = 5;
+            }
+        } else if (opponentsForkSetup.indexOf(6) !== -1 && opponentsForkSetup.indexOf(2) !== -1) {
+            // first, block potential win (if necessary)
+            if (freeCells.indexOf(7) !== -1) {
+                strategicForkBlockingCellIdx = 7;
+            } else { // second, take center (if possible)
+                strategicForkBlockingCellIdx = 5;
+            }
+        } else { // opponentsForkSetup.indexOf(2) !== -1 && opponentsForkSetup.indexOf(4) !== -1
+            // first, block potential win (if necessary)
+            if (freeCells.indexOf(9) !== -1) {
+                strategicForkBlockingCellIdx = 9;
+            } else { // second, take center (if possible)
+                strategicForkBlockingCellIdx = 5;
+            }
+        }
+    }
+
+    return strategicForkBlockingCellIdx;
+};
+
+/*
+ * Helper method - returns the cell index required for the current player's current move in order to block
+ * an opponent's opportunity to create a fork.
+ */
+getCellIdxThatStrategicallyBlocksOpponentsFork = function(freeCells, currPlyrsPrevMoves, oppPlyrsPrevMoves,
+                                                          allPossibleSetupsToCreateAFork) {
+    var strategicForkBlockingCellIdx;
+
+    // determine opponent's specific fork setup from their previous moves
+    var opponentsForkSetup = determineOpponentsSpecificForkSetup(oppPlyrsPrevMoves, allPossibleSetupsToCreateAFork);
+
+    // determine specific configuration of opponentsForkSetup - opposing side or same side
+    var oppHasSameSideForkSetup = determineWhetherOpponentsForkIsSameSideConfiguration(opponentsForkSetup);
+    var oppHasOpposingSideForkSetup;
+    if (!oppHasSameSideForkSetup) {
+        oppHasOpposingSideForkSetup = true;
+    }
+
+    // determine strategic move for blocking opponent's fork based on its configuration
+    strategicForkBlockingCellIdx = determineStrategicForkBlockingCellsIdx(oppHasOpposingSideForkSetup, freeCells,
+                                                                            opponentsForkSetup);
+
+    return strategicForkBlockingCellIdx;
+};
+
+/*
+ * Helper method - returns a cell's index that blocks a potential fork of the opponent and -1 otherwise.
+ */
+getForkBlockingMove = function(freeCells, currPlyrsIdx, board) {
+    var forkBlockingMovesIdx = -1;
+
+    var oppPlyrsIdx = currPlyrsIdx === 1 ? 2 : 1;
+    var currPlyrsPrevMoves = getCurrPlyrsPrevMoves(currPlyrsIdx, board);
+    var oppPlyrsPrevMoves = getCurrPlyrsPrevMoves(oppPlyrsIdx, board);
+
+    var allPossibleSetupsToCreateAFork = [[4,6],[4,8],[4,2],[8,6],[8,2],[6,2]]; // must involve corner cells
+
+    var possibleToCreateAFork = determineWhetherForkCanBeCreated(freeCells, oppPlyrsPrevMoves,
+                                    allPossibleSetupsToCreateAFork);
+
+    // if it's possible for the opposing player to make a fork on their next move, then the current player
+    // should either play a twoInARow (option 1) or block the opposing player's fork (option 2)
+    if (possibleToCreateAFork) {
+        // ***Prefer option 1 over option 2***
+
+        var twoInARowCanBeCreated = determineWhetherStrategicTwoInARowCanBeCreated(freeCells, currPlyrsPrevMoves);
+
+        // Option 1 impact - opponent has to defend rather than fork
+        if (twoInARowCanBeCreated) { // prefer option 1
+            forkBlockingMovesIdx = getCellIdxCreatingAStrategicTwoInARow(freeCells, currPlyrsPrevMoves);
+        // Option 2 impact - opponent can no longer fork
+        } else { // resort to option 2
+            forkBlockingMovesIdx = getCellIdxThatStrategicallyBlocksOpponentsFork(freeCells, currPlyrsPrevMoves,
+                                    oppPlyrsPrevMoves, allPossibleSetupsToCreateAFork);
+        }
+    }
+
+    return forkBlockingMovesIdx;
+};
+
 //---------------VARIOUS AGENT AI ALGORITHMS---------------
 
 // OUR BEST SOLUTION...LEAVE BLANK UNTIL ALL OPTIONS HAVE BEEN CONSIDERED
@@ -607,6 +808,7 @@ Agent.prototype.selectMoveAtRandom = function(board) {
  */
 Agent.prototype.selectMoveWithRules = function(board) {
 	var optimalMovesIdx = -1;
+    var optimalMoveFound = false; // assume no found until solution cell is discovered
 
 	// get all free cells on gameboard
 	var freeCells = getFreeCells(board);
@@ -619,37 +821,64 @@ Agent.prototype.selectMoveWithRules = function(board) {
 	// Rule 0 - handle edge cases (moves 1 - 3)
     if (freeCells.length > 6) { // first 3 moves are 'edge cases'
         optimalMovesIdx = getAnInitialMove(freeCells, currPlyrsIdx, board);
+        optimalMoveFound = true;
     }
 
 	// Rule 1 - Win, if possible.
 	var winningMovesIdx;
-	if (freeCells.length <= 5) { // then it's possible for p1 to have a winning move
+	if (!optimalMoveFound && freeCells.length <= 5) { // then it's possible for p1 to have a winning move
 		winningMovesIdx = getWinningMove(freeCells, currPlyrsIdx, board);
-	}
-	if (winningMovesIdx != -1) {
-		optimalMovesIdx = winningMovesIdx;
+        if (winningMovesIdx != -1) {
+            optimalMovesIdx = winningMovesIdx;
+            optimalMoveFound = true;
+        }
 	}
 
 	// Rule 2 - Block opponent if they have a twoInARow.
 	var blockingMovesIdx;
     var oppPlyrsIdx = currPlyrsIdx === 1 ? 2 : 1;
-	if (freeCells.length <= 6) { // then it's possible for p2 to have a blocking move
+	if (!optimalMoveFound && freeCells.length <= 6) { // then it's possible for p2 to have a blocking move
 		blockingMovesIdx = getBlockingMove(freeCells, currPlyrsIdx, oppPlyrsIdx, board);
-	}
-	if (blockingMovesIdx !== -1) {
-		optimalMovesIdx = blockingMovesIdx;
+        if (blockingMovesIdx !== -1) {
+            optimalMovesIdx = blockingMovesIdx;
+            optimalMoveFound = true;
+        }
 	}
 
 	// Rule 3 - Create a fork when possible
 	var forkingMovesIdx;
-    if (freeCells.length <= 5) { // then it's possible for p1 to have a forking move
+    if (!optimalMoveFound && freeCells.length <= 5) { // then it's possible for p1 to have a forking move
         forkingMovesIdx = getForkingMove(freeCells, currPlyrsIdx, board);
-    }
-    if (forkingMovesIdx !== -1) {
-        optimalMovesIdx = forkingMovesIdx;
+        if (forkingMovesIdx !== -1) {
+            optimalMovesIdx = forkingMovesIdx;
+            optimalMoveFound = true;
+        }
     }
 
-    // TODO: Rule 4 - ...
+    // Rule 4 - Block an opponent's potential fork
+    var forkBlockingMovesIdx;
+    if (!optimalMoveFound && freeCells.length <= 6) {
+        forkBlockingMovesIdx = getForkBlockingMove(freeCells, currPlyrsIdx, board);
+        if (forkBlockingMovesIdx !== -1) {
+            optimalMovesIdx = forkBlockingMovesIdx;
+            optimalMoveFound = true;
+        }
+    }
+
+    // Rule 5 - Play center
+    if (!optimalMoveFound && freeCells.indexOf(5) !== -1) {
+        optimalMovesIdx = 5; // pick center
+        optimalMoveFound = true;
+    }
+
+    // TODO: Rule 6 - If the opponent played in one corner, play in the opposing corner
+    // ...
+
+    // TODO: Rule 7 - Play in an empty corner cell
+    var cornerCellIdxs = [];
+
+    // TODO: Rule 8 - Play in an empty edge cell
+    var edgeCellIdxs = [];
 
 	return optimalMovesIdx;
 };
