@@ -781,6 +781,37 @@ getForkBlockingMove = function(freeCells, currPlyrsIdx, board) {
     return forkBlockingMovesIdx;
 };
 
+/*
+ * Helper method - returns the index of the free cell opposing an opponent's corner move and
+ * returns -1 if such a cell doesn't exist.
+ */
+getOpposingCornerMovesIdx = function(freeCells, currPlyrsIdx, board) {
+    var opposingCornerMovesIdx = -1;
+
+    var oppPlyrsIdx = currPlyrsIdx === 1 ? 2 : 1;
+    var oppPlyrsPrevMoves = getCurrPlyrsPrevMoves(oppPlyrsIdx, board);
+
+    if (oppPlyrsPrevMoves.indexOf(4) !== -1) {
+        if (freeCells.indexOf(6) !== -1) {
+            opposingCornerMovesIdx = 6;
+        }
+    } else if (oppPlyrsPrevMoves.indexOf(8) !== -1) {
+        if (freeCells.indexOf(2) !== -1) {
+            opposingCornerMovesIdx = 2;
+        }
+    } else if (oppPlyrsPrevMoves.indexOf(6) !== -1) {
+        if (freeCells.indexOf(4) !== -1) {
+            opposingCornerMovesIdx = 4;
+        }
+    } else { // oppPlyrsPrevMoves.indexOf(2) !== -1
+        if (freeCells.indexOf(8) !== -1) {
+            opposingCornerMovesIdx = 8;
+        }
+    }
+
+    return opposingCornerMovesIdx;
+};
+
 //---------------VARIOUS AGENT AI ALGORITHMS---------------
 
 // OUR BEST SOLUTION...LEAVE BLANK UNTIL ALL OPTIONS HAVE BEEN CONSIDERED
@@ -866,13 +897,21 @@ Agent.prototype.selectMoveWithRules = function(board) {
     }
 
     // Rule 5 - Play center
-    if (!optimalMoveFound && freeCells.indexOf(5) !== -1) {
+    var centerCellIdx = 5;
+    if (!optimalMoveFound && freeCells.indexOf(centerCellIdx) !== -1) {
         optimalMovesIdx = 5; // pick center
         optimalMoveFound = true;
     }
 
-    // TODO: Rule 6 - If the opponent played in one corner, play in the opposing corner
-    // ...
+    // Rule 6 - If the opponent played in one corner, play in the opposing corner
+    var opposingCornerMovesIdx;
+    if (!optimalMoveFound) {
+        opposingCornerMovesIdx = getOpposingCornerMovesIdx(freeCells, currPlyrsIdx, board);
+        if (opposingCornerMovesIdx !== -1) {
+            optimalMovesIdx = opposingCornerMovesIdx;
+            optimalMoveFound = true;
+        }
+    }
 
     // TODO: Rule 7 - Play in an empty corner cell
     var cornerCellIdxs = [];
