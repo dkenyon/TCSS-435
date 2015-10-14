@@ -812,6 +812,42 @@ getOpposingCornerMovesIdx = function(freeCells, currPlyrsIdx, board) {
     return opposingCornerMovesIdx;
 };
 
+/*
+ * Helper method - returns the index of an empty corner cell or -1 otherwise (if all corner cells are occupied).
+ */
+getAnEmptyCornerCellsIdx = function(freeCells) {
+    var emptyCornerCellsIdx = -1;
+    var allCornerCellIdxs = [4,8,6,2];
+
+    for (var i = 0; i < allCornerCellIdxs.length; i++) {
+        var currCornerCellIdx = allCornerCellIdxs[i];
+        if (freeCells.indexOf(currCornerCellIdx) !== -1) { // cell is free
+            emptyCornerCellsIdx = currCornerCellIdx;
+            break;
+        }
+    }
+
+    return emptyCornerCellsIdx;
+};
+
+/*
+ * Helper method - returns the index of an empty edge cell or -1 otherwise (if all edge cells are occupied).
+ */
+getAnEmptyEdgeCellsIdx = function(freeCells) {
+    var emptyEdgeCellsIdx = -1;
+    var allEdgeCellsIdxs = [3,1,7,9];
+
+    for (var i = 0; i < allEdgeCellsIdxs.length; i++) {
+        var currEdgeCellIdx = allEdgeCellsIdxs[i];
+        if (freeCells.indexOf(currEdgeCellIdx) !== -1) { // cell is free
+            emptyEdgeCellsIdx = currEdgeCellIdx;
+            break;
+        }
+    }
+
+    return emptyEdgeCellsIdx;
+};
+
 //---------------VARIOUS AGENT AI ALGORITHMS---------------
 
 // OUR BEST SOLUTION...LEAVE BLANK UNTIL ALL OPTIONS HAVE BEEN CONSIDERED
@@ -913,11 +949,25 @@ Agent.prototype.selectMoveWithRules = function(board) {
         }
     }
 
-    // TODO: Rule 7 - Play in an empty corner cell
-    var cornerCellIdxs = [];
+    // Rule 7 - Play in an empty corner cell
+    var emptyCornerCellsIdx;
+    if (!optimalMoveFound) {
+        emptyCornerCellsIdx = getAnEmptyCornerCellsIdx(freeCells);
+        if (emptyCornerCellsIdx !== -1) {
+            optimalMovesIdx = emptyCornerCellsIdx;
+            optimalMoveFound = true;
+        }
+    }
 
-    // TODO: Rule 8 - Play in an empty edge cell
-    var edgeCellIdxs = [];
+    // Rule 8 - Play in an empty edge cell
+    var emptyEdgeCellsIdx;
+    if (!optimalMoveFound) {
+        emptyEdgeCellsIdx = getAnEmptyEdgeCellsIdx(freeCells);
+        if (emptyEdgeCellsIdx !== -1) {
+            // it's also implied that the optimal move must be now have been found (optimalMoveFound = true)
+            optimalMovesIdx = emptyEdgeCellsIdx;
+        }
+    }
 
 	return optimalMovesIdx;
 };
